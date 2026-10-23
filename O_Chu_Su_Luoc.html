@@ -1,0 +1,3188 @@
+<!doctype html>
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Ô chữ lịch sử theo Việt Nam sử lược của Trần Trọng Kim. Chọn triều đại, giải ô chữ và khám phá từ khóa bí mật.">
+<title>Ô Chữ Sử Lược · Triều đại & Từ khóa</title>
+<style>
+
+/* Bố cục: tiêu đề và chọn cấp độ ở trên, bàn chơi bên trái, danh sách gợi ý bên phải (xếp dọc trên điện thoại), phần "Trích sử" ở cuối. */
+:root{
+  --bg:#E7ECE6; --surface:#F4F7F1; --ink:#17221E; --muted:#51615A; --line:#B4C1BA;
+  --accent:#9A3324; --accent-ink:#FFFFFF;
+  --cell:#FBFCF8; --cell-line:#9DAEA6; --tint:#D3E1D3; --gold:#F0D68A;
+  --ok:#2C6848; --ok-bg:#CDE4D3; --bad:#A12E21; --bad-bg:#F2D1CA;
+  --display:"Playfair Display","Noto Serif",Georgia,serif;
+  --body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1513; --surface:#15201D; --ink:#E6EDE7; --muted:#96A79F; --line:#2B3C37;
+    --accent:#E8836B; --accent-ink:#1C0E0A;
+    --cell:#1A2824; --cell-line:#3B504A; --tint:#1F332D; --gold:#7A6420;
+    --ok:#7CCB9C; --ok-bg:#1B3829; --bad:#F29A8B; --bad-bg:#44211B;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1513; --surface:#15201D; --ink:#E6EDE7; --muted:#96A79F; --line:#2B3C37;
+  --accent:#E8836B; --accent-ink:#1C0E0A;
+  --cell:#1A2824; --cell-line:#3B504A; --tint:#1F332D; --gold:#7A6420;
+  --ok:#7CCB9C; --ok-bg:#1B3829; --bad:#F29A8B; --bad-bg:#44211B;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+button{font-family:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.page{max-width:1120px;margin:0 auto;padding-block:22px 44px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+
+.top{display:flex;align-items:center;gap:14px}
+.seal{flex:none;width:52px;height:52px;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-family:var(--display);font-weight:800;font-size:26px;border-radius:4px;transform:rotate(-3deg)}
+h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(26px,5vw,40px);line-height:1.1;text-wrap:balance}
+.top p{margin:4px 0 0;color:var(--muted);max-width:62ch;font-size:14px}
+
+.levels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.lv{display:flex;flex-direction:column;gap:2px;text-align:left;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:6px;cursor:pointer;min-width:0}
+.lv:hover{border-color:var(--ink)}
+.lv .name{font-weight:700;font-size:16px}
+.lv .count{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.lv .desc{font-size:12.5px;color:var(--muted);line-height:1.4}
+.lv .best{font-size:12px;color:var(--ok);font-variant-numeric:tabular-nums;min-height:1.2em}
+.lv.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.lv.on .count,.lv.on .desc{color:inherit;opacity:.78}
+.lv.on .best{color:inherit;opacity:.9}
+@media (max-width:560px){.lv .desc{display:none}}
+
+.stage{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;align-items:start}
+@media (min-width:900px){.stage{grid-template-columns:minmax(0,1fr) 340px}}
+
+.board{display:flex;flex-direction:column;gap:12px;min-width:0}
+.status{display:flex;flex-wrap:wrap;gap:4px 20px;font-size:13px;color:var(--muted)}
+.status b{color:var(--ink);font-variant-numeric:tabular-nums;font-weight:600}
+.now{min-height:4.6em;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:6px;display:flex;flex-direction:column;gap:2px}
+.now .tag{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.now .ctext{font-size:15.5px;line-height:1.45}
+
+.gridwrap{position:relative;width:min(100%,calc(var(--cols) * 46px));container-type:inline-size;border-radius:4px}
+.gridwrap:focus-within{outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:6px}
+.grid{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:2px}
+.cell{position:relative;aspect-ratio:1;display:grid;place-items:center;background:var(--cell);border:1px solid var(--cell-line);border-radius:2px;cursor:pointer;user-select:none;-webkit-user-select:none;font-weight:600;font-size:calc(100cqw / var(--cols) * .5);line-height:1}
+.cell.void{background:transparent;border-color:transparent;cursor:default;visibility:hidden}
+.cell .n{position:absolute;top:1px;left:2px;font-size:max(7px,calc(100cqw / var(--cols) * .23));font-weight:500;color:var(--muted);line-height:1}
+.cell.inword{background:var(--tint)}
+.cell.done{background:var(--ok-bg);border-color:var(--ok)}
+.cell.rev .ch{color:var(--accent)}
+.cell.bad{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.cell.active{background:var(--gold);border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.sink{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;border:0;padding:0;font-size:16px;caret-color:transparent;pointer-events:none}
+
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.btn{padding:9px 14px;background:var(--surface);border:1px solid var(--line);border-radius:6px;font-size:14px;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.msg{margin:0;min-height:1.5em;font-size:14px;color:var(--muted)}
+.tip{margin:0;font-size:13px;color:var(--muted);max-width:62ch}
+.result{padding:12px 14px;background:var(--ok-bg);border:1px solid var(--ok);border-radius:6px;font-weight:600}
+
+.clues{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 8px 10px;min-width:0}
+@media (min-width:900px){.clues{max-height:min(680px,80vh);overflow-y:auto}}
+.clues h2{margin:12px 6px 4px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.clues ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+.clue{display:grid;grid-template-columns:2.1em minmax(0,1fr);gap:4px;width:100%;text-align:left;padding:7px 8px;background:transparent;border:0;border-radius:4px;font-size:14px;line-height:1.45;cursor:pointer}
+.clue:hover{background:var(--tint)}
+.clue .cn{font-weight:700;font-variant-numeric:tabular-nums}
+.clue em{font-style:normal;color:var(--muted);white-space:nowrap}
+.clue.cross{background:color-mix(in srgb,var(--tint) 55%,transparent)}
+.clue.cur{background:var(--gold)}
+.clue.done .ct{color:var(--muted)}
+.clue.done .ct::after{content:" ✓";color:var(--ok);font-weight:700}
+
+.learned h2{margin:0 0 4px;font-family:var(--display);font-size:24px;font-weight:700}
+.learned .empty{margin:0 0 10px;color:var(--muted);font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px;min-width:0}
+.card .era{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.card h3{margin:2px 0 4px;font-family:var(--display);font-size:19px;font-weight:700;line-height:1.25}
+.card p{margin:0;font-size:14px;line-height:1.5}
+
+.foot{font-size:12.5px;color:var(--muted);max-width:70ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+:root{--gold:#F2D58A;--key:#976619;--display:Georgia,'Times New Roman',serif;--body:system-ui,-apple-system,'Segoe UI',sans-serif}
+:root[data-theme="dark"]{--gold:#5D4C24;--key:#E2BB67}
+body{margin:0} input,select{font:inherit;color:inherit}button{touch-action:manipulation}button:disabled{opacity:.55;cursor:default}a{color:var(--accent);text-underline-offset:3px}h2{line-height:1.25}.page{max-width:1220px;gap:22px}.top{padding:6px 0 0}.top p{max-width:80ch}.top>div:nth-child(2){flex:1}.theme{margin-left:auto;font-size:13px;white-space:nowrap}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.17em;color:var(--accent);font-weight:750}.top h1{margin-top:5px}.intro{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.badge{border:1px solid var(--line);border-radius:100px;padding:3px 10px;font-size:12px;color:var(--muted)}
+.setup{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px}.setup-head{display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:12px}.setup h2{font:700 23px var(--display);margin:0}.setup p{margin:4px 0 0;font-size:13px;color:var(--muted)}.eras{display:flex;flex-wrap:wrap;gap:7px}.era-btn{padding:7px 11px;border:1px solid var(--line);border-radius:100px;background:var(--cell);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px}.era-btn b{font-size:11px;font-weight:500;opacity:.7}.era-btn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}.era-btn:hover{border-color:var(--accent)}.setup-bottom{margin-top:16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:end}.levels{gap:8px}.lv{background:var(--cell);border-radius:7px;padding:9px 12px}.lv .name{font-size:14px}.lv .count{font-size:12px}.setup-action{display:flex;flex-direction:column;align-items:end;gap:6px}.setup-action p{max-width:200px;text-align:right;font-size:12px}.stage{gap:26px}.board{gap:12px}.status{align-items:center;gap:6px 18px}.current-scope{font-size:12px;color:var(--accent);font-weight:700;line-height:1.5}.now{border-radius:8px;min-height:86px}.now .tag{font-size:11px}.now .ctext{font-size:16px}.board-title{display:flex;justify-content:space-between;align-items:center;gap:8px}.board-title h2{font:700 25px var(--display);margin:0}.board-title span{font-size:12px;color:var(--muted)}.scroll-board{overflow-x:auto;padding:6px 5px 8px;border-radius:6px;overscroll-behavior-x:contain}.gridwrap{width:calc(var(--cols) * 36px);max-width:100%;min-width:calc(var(--cols) * 28px);margin:auto}.cell{padding:0;color:var(--ink);font-family:var(--body);font-size:calc(100cqw / var(--cols) * .50);border-radius:3px}.cell .n{font-size:max(8px,calc(100cqw / var(--cols) * .23))}.cell.key-cell{border-bottom:3px solid var(--key)}.cell .kn{position:absolute;right:1px;bottom:0;font-size:8px;background:var(--key);color:var(--bg);border-radius:2px;padding:1px 2px;font-weight:800;line-height:1}.legend{font-size:12px;color:var(--muted);margin:0}.legend i{display:inline-block;width:13px;height:13px;background:var(--gold);border-bottom:3px solid var(--key);vertical-align:-2px;margin-right:5px}.answer-form{display:flex;gap:8px;align-items:end}.answer-form label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.input-group{flex:1;min-width:0}.text-input{width:100%;border:1px solid var(--line);border-radius:6px;background:var(--cell);padding:10px 12px;min-height:43px;font-size:16px}.tools{gap:6px}.tools .btn{font-size:12px;padding:8px 11px}.tools .btn.primary{margin-left:auto}.msg{font-size:13px}.clues{border-radius:10px;padding:10px}.clues h2{margin-top:6px}.clues .clue{font-size:13px;padding:9px 8px}.clue .cn{color:var(--accent)}.clue.done .cn{color:var(--ok)}.progress-track{height:4px;background:var(--line);border-radius:100px;overflow:hidden}.progress-track>div{height:100%;background:var(--ok);transition:width .2s}.keyword{border:1px solid var(--key);border-radius:10px;padding:16px 18px;background:color-mix(in srgb,var(--gold) 16%,var(--surface));display:flex;flex-direction:column;gap:10px}.keyword-top{display:flex;justify-content:space-between;align-items:center;gap:10px}.keyword h2{font:700 24px var(--display);margin:0}.keyword-top .eyebrow{color:var(--key);margin-bottom:4px}.keyword-top span{font-size:12px;color:var(--muted)}.keyword p{font-size:13px;margin:0}.key-row{display:flex;gap:5px;overflow-x:auto;padding:2px 2px 6px}.key-tile{flex:0 0 38px;height:48px;background:var(--cell);border:1px solid var(--key);border-radius:5px;position:relative;display:grid;place-items:center;font-size:20px;font-weight:750;cursor:pointer;color:var(--muted)}.key-tile small{position:absolute;left:4px;top:2px;font-size:9px;font-weight:500}.key-tile.open{background:var(--gold);color:var(--ink)}.key-tile.correct{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}.key-tile.word-start{margin-left:9px}.keyword.solved{border-color:var(--ok)}.key-note{color:var(--muted)}.key-note a{white-space:nowrap}.learned{border-top:1px solid var(--line);padding-top:22px}.learned h2{font-size:25px}.card a{display:block;font-size:11.5px;margin-top:10px}.card .era{font-size:10px}.cards{gap:10px}.cards .card{border-radius:8px}.result{border-radius:8px}.help,.bank-panel{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:12px 16px}.help summary,.bank-panel summary{font-weight:650;cursor:pointer}.help ol{padding-left:22px;font-size:13px;margin-bottom:0}.help li{padding-top:5px}.bank-panel .text-input{margin:12px 0}.bank-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:8px;max-height:640px;overflow:auto;margin:10px 0}.bank-list article{padding:12px;border:1px solid var(--line);border-radius:6px;background:var(--cell)}.bank-list h3{font-size:14px;margin:0 0 4px}.bank-list p{font-size:12px;margin:5px 0}.bank-list a{font-size:11px}.bank-meta{font-size:12px;color:var(--muted)}.foot{max-width:none;border-top:1px solid var(--line);padding-top:16px;line-height:1.7}.foot p{margin:3px 0}.save-status{font-size:11px;color:var(--muted)}.toast{color:var(--ok)}.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+@media(min-width:1000px){.stage{grid-template-columns:minmax(0,1fr) 350px}.clues{max-height:940px;overflow:auto;position:sticky;top:16px}}
+@media(max-width:650px){.page{padding-top:16px;gap:16px}.seal{width:42px;height:42px;font-size:23px}.top{gap:10px;flex-wrap:wrap}.theme{font-size:11px;padding:6px 8px}.top p{font-size:12px}.top h1{font-size:29px}.intro{gap:5px}.badge{font-size:10px}.setup{padding:14px}.setup h2{font-size:21px}.era-btn{font-size:12px;padding:7px 9px}.setup-bottom{grid-template-columns:1fr;gap:10px}.setup-action{flex-direction:row;justify-content:space-between;align-items:center}.setup-action p{max-width:65%;text-align:left}.lv .count{font-size:10px}.lv .best{font-size:10px}.now .ctext{font-size:14px}.keyword{padding:13px}.key-tile{flex-basis:32px;height:44px;font-size:18px}.key-row{gap:4px}.answer-form .btn{padding:10px}.stage{grid-template-columns:1fr}.clues{max-height:520px;overflow:auto}.tools .btn.primary{margin-left:0}.board-title h2{font-size:23px}}
+@media(max-width:650px){.top{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:start}.top .seal{margin-top:23px}.theme{grid-column:2;justify-self:start;margin:0}.top h1{font-size:29px;text-wrap:nowrap}.lv{padding:9px 8px}.lv .name{font-size:13px}.lv .best:empty{display:none}.setup-action p{font-size:11px}}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="top">
+  <div class="seal" aria-hidden="true">Sử</div>
+  <div><div class="eyebrow">Trần Trọng Kim · Việt Nam sử lược</div><h1>Ô Chữ Sử Lược</h1><p>Đi qua những triều đại. Ghép từng mảnh sử. Khám phá một từ khóa bí mật.</p>
+  <div class="intro"><span class="badge" id="bankTotal"></span><span class="badge">11 nhóm thời kỳ</span><span class="badge">Chơi ngoại tuyến</span></div></div>
+  <button class="btn theme" type="button" id="bTheme" aria-label="Đổi giao diện sáng tối">Giao diện tối</button>
+</header>
+<section class="setup" aria-label="Chọn bộ câu hỏi">
+  <div class="setup-head"><div><h2>Hôm nay, khám phá thời nào?</h2><p>Chọn một hoặc nhiều nhóm rồi bấm “Tạo ô chữ”.</p></div></div>
+  <div class="eras" id="eraChoices" role="group" aria-label="Nhóm triều đại"></div>
+  <div class="setup-bottom">
+    <div class="levels" role="group" aria-label="Độ thử thách">
+      <button class="lv on" aria-pressed="true" data-level="easy" type="button"><span class="name">Dễ</span><span class="count">9 từ · Có số tiếng</span><span class="best" id="best-easy"></span></button>
+      <button class="lv" aria-pressed="false" data-level="medium" type="button"><span class="name">Trung bình</span><span class="count">12 từ · Có số tiếng</span><span class="best" id="best-medium"></span></button>
+      <button class="lv" aria-pressed="false" data-level="hard" type="button"><span class="name">Khó</span><span class="count">14 từ · Ẩn số tiếng</span><span class="best" id="best-hard"></span></button>
+    </div>
+    <div class="setup-action"><p id="poolCount" aria-live="polite"></p><button class="btn primary" id="bApply" type="button">Tạo ô chữ</button></div>
+  </div>
+</section>
+<main class="stage">
+  <section class="board" aria-label="Bàn chơi">
+    <div class="board-title"><h2>Giải những hàng chữ</h2><span id="saveStatus" class="save-status"></span></div>
+    <div id="currentScope" class="current-scope"></div>
+    <div class="status"><span>Thời gian <b id="time">00:00</b></span><span>Đã giải <b id="prog">0/9</b></span><span>Ô gợi ý <b id="hints">0</b></span></div>
+    <div class="progress-track" aria-hidden="true"><div id="progressBar" style="width:0"></div></div>
+    <div class="now" id="now" aria-live="polite"></div>
+    <div class="scroll-board" id="scrollBoard"><div class="gridwrap" id="gridwrap"><div class="grid" id="grid" role="group" aria-label="Bàn ô chữ"></div><input id="sink" class="sink" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" aria-label="Gõ chữ vào ô đang chọn. Nhấn Escape để ra khỏi bàn."></div></div>
+    <p class="legend"><i></i>Ô có số vàng đóng góp một chữ vào từ khóa bên dưới. <span id="scrollHint" hidden>Vuốt ngang để xem đủ bàn.</span></p>
+    <form class="answer-form" id="wordForm"><div class="input-group"><label for="wordInput">Nhập trọn đáp án cho hàng đang chọn</label><input class="text-input" id="wordInput" placeholder="Có thể gõ tiếng Việt có dấu…" autocomplete="off" spellcheck="false"></div><button class="btn" type="submit" id="bFill">Điền từ</button></form>
+    <div class="tools"><button class="btn" id="bCheck" type="button">Kiểm tra</button><button class="btn" id="bHint" type="button">Gợi ý một ô</button><button class="btn" id="bWord" type="button">Hiện từ này</button><button class="btn" id="bAll" type="button">Xem đáp án</button><button class="btn primary" id="bNew" type="button">Ô chữ mới</button></div>
+    <p class="msg" id="msg" role="status"></p>
+    <section class="keyword" id="keywordBox" aria-labelledby="keywordTitle">
+      <div class="keyword-top"><div><div class="eyebrow">Mảnh ghép cuối cùng</div><h2 id="keywordTitle">Từ khóa bí mật</h2></div><span id="keyProgress"></span></div>
+      <p id="keyClue"></p>
+      <div class="key-row" id="keyRow" role="group" aria-label="Hàng chữ từ khóa"></div>
+      <p class="key-note">Giải đúng một hàng sẽ mở các chữ từ khóa lấy từ hàng đó. Bấm ô từ khóa để tìm ô nguồn; có thể đoán từ khóa bất cứ lúc nào.</p>
+      <form class="answer-form" id="keywordForm"><div class="input-group"><label class="sr-only" for="keywordInput">Đáp án từ khóa</label><input class="text-input" id="keywordInput" placeholder="Bạn đoán từ khóa là…" autocomplete="off" spellcheck="false"></div><button class="btn primary" type="submit" id="bKeyword">Giải từ khóa</button></form>
+      <p id="keyMsg" role="status"></p><p id="keyNote" class="key-note" hidden></p>
+    </section>
+    <div class="result" id="result" role="status" hidden></div>
+    <details class="help"><summary>Cách chơi & phím tắt</summary><ol><li>Chọn câu hỏi bên phải hoặc chạm vào ô trên bàn. Nhập từng chữ, hoặc nhập cả đáp án vào ô văn bản. Dấu tiếng Việt, khoảng trắng và dấu gạch nối được bỏ qua; Đ đổi thành D.</li><li>Phím mũi tên để di chuyển; phím cách đổi ngang/dọc ở ô giao. Tab hoặc Enter chuyển câu khi đang ở bàn; Escape đưa bạn ra ô nhập đáp án.</li><li>Các số nhỏ màu vàng ứng với vị trí trong hàng từ khóa. Chữ chỉ mở khi một hàng chứa ô nguồn được giải đúng.</li><li>Hoàn thành tất cả hàng chữ và giải đúng từ khóa để kết thúc. “Xem đáp án” kết thúc ván ở chế độ xem lời giải, không tính kỷ lục.</li><li>Cấp độ điều chỉnh số từ, kích thước bàn và việc hiện số tiếng. Bộ câu hỏi lấy từ các nhóm đã chọn. Tiến độ lưu tự động nếu trình duyệt cho phép.</li></ol></details>
+  </section>
+  <aside class="clues" aria-label="Danh sách câu hỏi"><h2>Hàng ngang</h2><ol id="clueA"></ol><h2>Hàng dọc</h2><ol id="clueD"></ol></aside>
+</main>
+<section class="learned" aria-labelledby="learnedTitle"><div class="eyebrow">Giải một từ · Nhớ một chuyện</div><h2 id="learnedTitle">Sổ tay sử học</h2><p class="empty" id="learnedEmpty">Giải đúng để mở ghi chú và chương sách của từng đáp án.</p><div class="cards" id="learnedList"></div></section>
+<details class="bank-panel" id="bankDetails"><summary id="bankSummary">Tra cứu kho câu hỏi (có đáp án)</summary><p class="bank-meta">Phần này hiển thị đáp án để ôn tập. Lọc theo các nhóm đang chọn ở phía trên.</p><label class="sr-only" for="bankSearch">Tìm trong kho câu hỏi</label><input class="text-input" id="bankSearch" type="search" placeholder="Tìm nhân vật, địa danh, sự kiện…"><div id="bankCount" class="bank-meta"></div><div class="bank-list" id="bankList"></div><button type="button" class="btn" id="bMore">Xem thêm</button></details>
+<footer class="foot"><p><b>Nguồn:</b> Trần Trọng Kim, <i>Việt Nam sử lược</i>, bản số hóa trên Wikisource. <a href="https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I" target="_blank" rel="noopener noreferrer">Quyển I ↗</a> · <a href="https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971" target="_blank" rel="noopener noreferrer">Quyển II (bản 1971) ↗</a>.</p><p>Câu hỏi và ghi chú là lời diễn giải, không phải trích nguyên văn. Tên riêng được chuẩn hóa dấu và khoảng cách; một số dị danh được chú thích. Cổ sử và truyền thuyết được ghi rõ theo cách trình bày của tác giả. Liên kết nguồn cần Internet; trò chơi hoạt động ngay trong tệp này.</p></footer>
+</div>
+<noscript><p>Hãy bật JavaScript trong trình duyệt để chơi ô chữ.</p></noscript>
+<script>
+const BANK_VERSION="suluoc-20261023-v3";
+const GROUPS=[{"id": "co", "name": "Hồng Bàng · Thục", "desc": "Cổ sử và truyền thuyết"}, {"id": "bac", "name": "Bắc thuộc · Tiền Lý", "desc": "Hai Bà Trưng, Vạn Xuân, họ Khúc"}, {"id": "ngo", "name": "Ngô · Đinh · Tiền Lê", "desc": "Dựng lại nền tự chủ"}, {"id": "ly", "name": "Nhà Lý", "desc": "Dời đô, văn trị và chống Tống"}, {"id": "tran", "name": "Nhà Trần", "desc": "Khoa cử và kháng chiến Mông–Nguyên"}, {"id": "ho", "name": "Hồ · Hậu Trần · thuộc Minh", "desc": "Cải cách và kháng Minh"}, {"id": "le", "name": "Lam Sơn · Lê sơ", "desc": "Khởi nghĩa và thời Hồng Đức"}, {"id": "mac", "name": "Mạc · Lê trung hưng · Trịnh–Nguyễn", "desc": "Nam Bắc phân tranh"}, {"id": "tayson", "name": "Tây Sơn", "desc": "Quang Trung và chiến thắng quân Thanh"}, {"id": "nguyen", "name": "Nhà Nguyễn", "desc": "Gia Long, Minh Mệnh, Thiệu Trị, Tự Đức"}, {"id": "phap", "name": "Kháng Pháp · Cần Vương", "desc": "Các cuộc kháng cự cuối thế kỷ XIX"}];
+const SOURCES={"hongbang": {"label": "Quyển I · Phần I · Chương I — Họ Hồng Bàng", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_I/Chương_I"}, "thuc": {"label": "Quyển I · Phần I · Chương II — Nhà Thục", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_I/Chương_II"}, "trung": {"label": "Quyển I · Phần II · Chương II — Trưng Vương", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_II/Chương_II"}, "tienly": {"label": "Quyển I · Phần II · Chương IV — Nhà Tiền Lý", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_II/Chương_IV"}, "bac3": {"label": "Quyển I · Phần II · Chương V — Bắc thuộc lần thứ ba", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_II/Chương_V"}, "ngo": {"label": "Quyển I · Phần III · Chương I — Nhà Ngô", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_III/Chương_I"}, "dinh": {"label": "Quyển I · Phần III · Chương II — Nhà Đinh", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_III/Chương_II"}, "tienle": {"label": "Quyển I · Phần III · Chương III — Nhà Tiền Lê", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_III/Chương_III"}, "ly1": {"label": "Quyển I · Phần III · Chương IV — Nhà Lý", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_III/Chương_IV"}, "ly2": {"label": "Quyển I · Phần III · Chương V — Nhà Lý (tiếp theo)", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_III/Chương_V"}, "tran1": {"label": "Quyển I · Phần III · Chương VI — Nhà Trần (thời kỳ thứ nhất)", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_III/Chương_VI"}, "nguyen1": {"label": "Quyển I · Phần III · Chương VII — Giặc nhà Nguyên — I", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_III/Chương_VII"}, "nguyen2": {"label": "Quyển I · Phần III · Chương VIII — Giặc nhà Nguyên — II", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_III/Chương_VIII"}, "ho": {"label": "Quyển I · Phần III · Chương XI — Nhà Hồ", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_III/Chương_XI"}, "hautran": {"label": "Quyển I · Phần III · Chương XII — Nhà Hậu Trần", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_III/Chương_XII"}, "thuocminh": {"label": "Quyển I · Phần III · Chương XIII — Thuộc nhà Minh", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_III/Chương_XIII"}, "lamson": {"label": "Quyển I · Phần III · Chương XIV — Mười năm đánh quân Tàu", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_III/Chương_XIV"}, "leso": {"label": "Quyển I · Phần III · Chương XV — Nhà Lê", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Phần_III/Chương_XV"}, "nam_bac": {"label": "Quyển II · Phần IV · Chương II — Nam triều — Bắc triều", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971/Phần_IV/Chương_II"}, "trinhnguyen": {"label": "Quyển II · Phần IV · Chương III — Trịnh Nguyễn phân tranh", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971/Phần_IV/Chương_III"}, "namha": {"label": "Quyển II · Phần IV · Chương VI — Công việc họ Nguyễn làm ở miền Nam", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971/Phần_IV/Chương_VI"}, "taysondaynghiep": {"label": "Quyển II · Phần IV · Chương VIII — Vận trung suy của chúa Nguyễn", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971/Phần_IV/Chương_VIII"}, "tayson": {"label": "Quyển II · Phần IV · Chương XI — Nhà Nguyễn Tây Sơn", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971/Phần_IV/Chương_XI"}, "gialong": {"label": "Quyển II · Phần V · Chương I — Nguyễn thị Thế Tổ", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971/Phần_V/Chương_I"}, "minhmang": {"label": "Quyển II · Phần V · Chương II — Thánh Tổ", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971/Phần_V/Chương_II"}, "thieutri": {"label": "Quyển II · Phần V · Chương IV — Hiến Tổ", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971/Phần_V/Chương_IV"}, "tuduc": {"label": "Quyển II · Phần V · Chương V — Dực Tông", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971/Phần_V/Chương_V"}, "namky": {"label": "Quyển II · Phần V · Chương VII — Nước Pháp lấy Nam kỳ", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971/Phần_V/Chương_VII"}, "bac1phap": {"label": "Quyển II · Phần V · Chương IX — Quân nước Pháp lấy Bắc kỳ lần thứ nhất", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971/Phần_V/Chương_IX"}, "bac2phap": {"label": "Quyển II · Phần V · Chương XI — Quân nước Pháp lấy Bắc kỳ lần thứ hai", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971/Phần_V/Chương_XI"}, "canvuong": {"label": "Quyển II · Phần V · Chương XIV — Loạn ở Trung kỳ", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971/Phần_V/Chương_XIV"}, "phandinhphung": {"label": "Quyển II · Phần V · Chương XV — Việc đánh dẹp ở Trung kỳ và ở Bắc kỳ", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_II/1971/Phần_V/Chương_XV"}, "nuocvn": {"label": "Quyển I — Nước Việt Nam", "url": "https://vi.wikisource.org/wiki/Việt_Nam_sử_lược/Quyển_I/Nước_Việt_Nam"}};
+const BANK=[
+ {
+  "id": "q001",
+  "a": "VANLANG",
+  "vi": "Văn Lang",
+  "c": "Quốc hiệu của nước các vua Hùng, theo phần cổ sử.",
+  "n": "Sách kể Văn Lang có 15 bộ và đóng đô ở Phong Châu.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q002",
+  "a": "HUNGVUONG",
+  "vi": "Hùng Vương",
+  "c": "Danh xưng các vua nước Văn Lang trong phần họ Hồng Bàng.",
+  "n": "Tác giả lưu ý niên đại và truyện đời Hồng Bàng không hoàn toàn chắc chắn.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q003",
+  "a": "PHONGCHAU",
+  "vi": "Phong Châu",
+  "c": "Nơi vua Hùng đóng đô, theo sử cũ được sách thuật lại.",
+  "n": "Đây là địa danh gắn với nước Văn Lang trong chương Họ Hồng Bàng.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q004",
+  "a": "LACLONGQUAN",
+  "vi": "Lạc Long Quân",
+  "c": "Theo truyền thuyết, người kết duyên với Âu Cơ rồi chia con lên núi, xuống biển.",
+  "n": "Sách chép truyện này như một truyền thuyết về nguồn gốc.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q005",
+  "a": "AUCO",
+  "vi": "Âu Cơ",
+  "c": "Người mẹ cùng Lạc Long Quân sinh trăm người con trong truyền thuyết.",
+  "n": "Tác giả phân biệt truyện nguồn gốc với những điều có thể xác thực.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q006",
+  "a": "KINHDUONGVUONG",
+  "vi": "Kinh Dương Vương",
+  "c": "Vương hiệu của Lộc Tục trong truyện họ Hồng Bàng.",
+  "n": "Theo truyền thuyết, ông là cha của Lạc Long Quân.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q007",
+  "a": "XICHQUY",
+  "vi": "Xích Quỷ",
+  "c": "Quốc hiệu gắn với Kinh Dương Vương trong truyền thuyết.",
+  "n": "Sách thuật lại tên nước này theo sử cũ.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q008",
+  "a": "LACHAU",
+  "vi": "Lạc hầu",
+  "c": "Tên gọi tướng văn dưới thời Hùng Vương, theo sách.",
+  "n": "Chương Họ Hồng Bàng phân biệt chức văn và chức võ.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q009",
+  "a": "LACTUONG",
+  "vi": "Lạc tướng",
+  "c": "Tên gọi tướng võ dưới thời Hùng Vương, theo sách.",
+  "n": "Tên gọi được ghi trong đoạn nói về tổ chức nước Văn Lang.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q010",
+  "a": "QUANLANG",
+  "vi": "Quan lang",
+  "c": "Tên gọi con trai vua Hùng, theo phần cổ sử.",
+  "n": "Sách ghi các danh xưng trong triều Hùng Vương.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q011",
+  "a": "MINUONG",
+  "vi": "Mị nương",
+  "c": "Danh xưng con gái vua Hùng, theo sách.",
+  "n": "Cần phân biệt danh xưng này với tên Mị Châu trong truyện nhà Thục.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q012",
+  "a": "BOCHINH",
+  "vi": "Bồ chính",
+  "c": "Tên gọi các quan nhỏ dưới thời Hùng Vương, theo sách.",
+  "n": "Đây là một danh xưng được thuật lại từ sử cũ.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q013",
+  "a": "SONTINH",
+  "vi": "Sơn Tinh",
+  "c": "Nhân vật đến trước, lấy được con gái vua Hùng trong truyện được sách kể.",
+  "n": "Tác giả xem truyện Sơn Tinh, Thủy Tinh là cách dân gian giải thích lũ lụt.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q014",
+  "a": "THUYTINH",
+  "vi": "Thủy Tinh",
+  "c": "Nhân vật dâng nước đánh Sơn Tinh trong truyện cổ tích.",
+  "n": "Sách không coi cuộc giao tranh thần kỳ này là sự kiện đã được xác thực.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q015",
+  "a": "TANVIEN",
+  "vi": "Tản Viên",
+  "c": "Ngọn núi Sơn Tinh đưa vợ về trong truyền thuyết.",
+  "n": "Sách chú thích đây là núi Ba Vì.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q016",
+  "a": "SOCSON",
+  "vi": "Sóc Sơn",
+  "c": "Núi nơi người anh hùng làng Phù Đổng biến đi sau khi phá giặc Ân, theo truyện.",
+  "n": "Đây là chi tiết truyền thuyết được sách thuật lại.",
+  "g": "co",
+  "s": "hongbang",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q017",
+  "a": "THUCPHAN",
+  "vi": "Thục Phán",
+  "c": "Tên người xưng An Dương Vương, lập nước Âu Lạc.",
+  "n": "Tác giả bàn rằng Thục ở đây có thể là một họ gần Văn Lang.",
+  "g": "co",
+  "s": "thuc",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q018",
+  "a": "AULAC",
+  "vi": "Âu Lạc",
+  "c": "Quốc hiệu gắn với An Dương Vương.",
+  "n": "Chương Nhà Thục kể việc đổi tên nước và xây Loa Thành.",
+  "g": "co",
+  "s": "thuc",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q019",
+  "a": "LOATHANH",
+  "vi": "Loa Thành",
+  "c": "Tên thành của An Dương Vương, được giải thích bằng hình xoáy trôn ốc.",
+  "n": "Sách ghi dấu tích thành ở làng Cổ Loa.",
+  "g": "co",
+  "s": "thuc",
+  "e": "Hồng Bàng · Thục",
+  "aliases": [
+   "COLOA"
+  ]
+ },
+ {
+  "id": "q020",
+  "a": "MICHAU",
+  "vi": "Mị Châu",
+  "c": "Con gái An Dương Vương trong truyện về chiếc nỏ và cuộc mất nước.",
+  "n": "Sách dẫn câu chuyện như một tục truyền.",
+  "g": "co",
+  "s": "thuc",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q021",
+  "a": "KIMQUY",
+  "vi": "Kim Quy",
+  "c": "Thần rùa giúp xây thành và cho móng làm lẫy nỏ trong truyền thuyết.",
+  "n": "Chi tiết thần kỳ thuộc truyện tục truyền về An Dương Vương.",
+  "g": "co",
+  "s": "thuc",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q022",
+  "a": "PHONGKHE",
+  "vi": "Phong Khê",
+  "c": "Nơi An Dương Vương đóng đô, theo chương Nhà Thục.",
+  "n": "Sách đặt địa danh này trong vùng Đông Anh.",
+  "g": "co",
+  "s": "thuc",
+  "e": "Hồng Bàng · Thục"
+ },
+ {
+  "id": "q023",
+  "a": "HAIBATRUNG",
+  "vi": "Hai Bà Trưng",
+  "c": "Hai chị em khởi binh đánh đuổi Tô Định năm 40.",
+  "n": "Trưng Trắc và Trưng Nhị được các quận hưởng ứng.",
+  "g": "bac",
+  "s": "trung",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q024",
+  "a": "TRUNGTRAC",
+  "vi": "Trưng Trắc",
+  "c": "Vợ Thi Sách, cùng em gái nổi dậy chống Tô Định.",
+  "n": "Bà cùng Trưng Nhị dựng lại quyền tự chủ trong ba năm.",
+  "g": "bac",
+  "s": "trung",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q025",
+  "a": "TRUNGNHI",
+  "vi": "Trưng Nhị",
+  "c": "Em gái Trưng Trắc, cùng chị khởi binh.",
+  "n": "Sách kể hai chị em đánh được 65 thành.",
+  "g": "bac",
+  "s": "trung",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q026",
+  "a": "THISACH",
+  "vi": "Thi Sách",
+  "c": "Người chồng của Trưng Trắc bị Tô Định giết, theo lời kể của sách.",
+  "n": "Đây là một nguyên do khởi binh được tác giả thuật lại.",
+  "g": "bac",
+  "s": "trung",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q027",
+  "a": "TODINH",
+  "vi": "Tô Định",
+  "c": "Thái thú Giao Chỉ bị Hai Bà Trưng đánh đuổi.",
+  "n": "Sách mô tả chính trị của ông là tàn bạo.",
+  "g": "bac",
+  "s": "trung",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q028",
+  "a": "MELINH",
+  "vi": "Mê Linh",
+  "c": "Quê nhà và nơi đóng đô của Hai Bà Trưng.",
+  "n": "Sách ghi hai bà chọn quê nhà làm kinh đô.",
+  "g": "bac",
+  "s": "trung",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q029",
+  "a": "MAVIEN",
+  "vi": "Mã Viện",
+  "c": "Tướng Đông Hán được sai sang đánh Trưng Vương.",
+  "n": "Ông mang chức Phục Ba tướng quân.",
+  "g": "bac",
+  "s": "trung",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q030",
+  "a": "HATGIANG",
+  "vi": "Hát Giang",
+  "c": "Dòng sông Hai Bà Trưng tự tận, theo cách kể của sách.",
+  "n": "Đáp án theo Việt Nam sử lược, không dùng để khẳng định mọi nguồn đều chép giống nhau.",
+  "g": "bac",
+  "s": "trung",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q031",
+  "a": "LYBON",
+  "vi": "Lý Bôn",
+  "c": "Tên người khởi binh chống nhà Lương; sách cũng ghi tên Lý Bí.",
+  "n": "Ông xưng đế và đặt quốc hiệu Vạn Xuân năm 544.",
+  "g": "bac",
+  "s": "tienly",
+  "e": "Bắc thuộc · Tiền Lý",
+  "aliases": [
+   "LYBI"
+  ]
+ },
+ {
+  "id": "q032",
+  "a": "VANXUAN",
+  "vi": "Vạn Xuân",
+  "c": "Quốc hiệu do Lý Bôn đặt năm 544.",
+  "n": "Sách ghi niên hiệu cùng lúc là Thiên Đức.",
+  "g": "bac",
+  "s": "tienly",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q033",
+  "a": "THIENDUC",
+  "vi": "Thiên Đức",
+  "c": "Niên hiệu của Lý Bôn khi xưng đế năm 544.",
+  "n": "Niên hiệu này đi cùng quốc hiệu Vạn Xuân.",
+  "g": "bac",
+  "s": "tienly",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q034",
+  "a": "PHAMTU",
+  "vi": "Phạm Tu",
+  "c": "Tướng võ giúp Lý Bôn, đánh quân Lâm Ấp ở Cửu Đức.",
+  "n": "Ông được nhắc cùng Tinh Thiều và Triệu Túc.",
+  "g": "bac",
+  "s": "tienly",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q035",
+  "a": "TINHTHIEU",
+  "vi": "Tinh Thiều",
+  "c": "Người được Lý Bôn phong làm tướng văn.",
+  "n": "Sách phân biệt ông với tướng võ Phạm Tu.",
+  "g": "bac",
+  "s": "tienly",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q036",
+  "a": "TRIEUQUANGPHUC",
+  "vi": "Triệu Quang Phục",
+  "c": "Tướng được Lý Nam Đế giao binh quyền, lui về Dạ Trạch chống quân Lương.",
+  "n": "Về sau ông xưng Triệu Việt Vương.",
+  "g": "bac",
+  "s": "tienly",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q037",
+  "a": "DATRACH",
+  "vi": "Dạ Trạch",
+  "c": "Vùng đầm lầy làm căn cứ của Triệu Quang Phục.",
+  "n": "Quân ông ẩn ban ngày, dùng thuyền ra đánh ban đêm.",
+  "g": "bac",
+  "s": "tienly",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q038",
+  "a": "LYPHATTU",
+  "vi": "Lý Phật Tử",
+  "c": "Người được sử gọi là Hậu Lý Nam Đế.",
+  "n": "Ông tranh quyền với Triệu Việt Vương rồi làm vua.",
+  "g": "bac",
+  "s": "tienly",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q039",
+  "a": "LONGBIEN",
+  "vi": "Long Biên",
+  "c": "Thành Lý Bôn chiếm giữ sau khi đuổi Tiêu Tư.",
+  "n": "Địa danh còn được nhắc trong cuộc kháng cự quân Lương.",
+  "g": "bac",
+  "s": "tienly",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q040",
+  "a": "MAITHUCLOAN",
+  "vi": "Mai Thúc Loan",
+  "c": "Người khởi nghĩa ở Hoan Châu, được gọi là Mai Hắc Đế.",
+  "n": "Sách ghi cuộc nổi dậy vào năm 722.",
+  "g": "bac",
+  "s": "bac3",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q041",
+  "a": "PHUNGHUNG",
+  "vi": "Phùng Hưng",
+  "c": "Người được dân tôn làm Bố Cái Đại Vương.",
+  "n": "Ông chiếm phủ đô hộ rồi mất; con là Phùng An nối nghiệp.",
+  "g": "bac",
+  "s": "bac3",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q042",
+  "a": "PHUNGAN",
+  "vi": "Phùng An",
+  "c": "Người con nối nghiệp Phùng Hưng.",
+  "n": "Sách kể ông sau đó quy hàng Triệu Xương.",
+  "g": "bac",
+  "s": "bac3",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q043",
+  "a": "CAOBIEN",
+  "vi": "Cao Biền",
+  "c": "Tướng nhà Đường đánh Nam Chiếu và đắp lại thành Đại La.",
+  "n": "Tác giả tách việc xây thành khỏi những chuyện yểm đất hoang đường.",
+  "g": "bac",
+  "s": "bac3",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q044",
+  "a": "DAILA",
+  "vi": "Đại La",
+  "c": "Thành được Cao Biền đắp lại bên sông Tô Lịch.",
+  "n": "Về sau Lý Thái Tổ đổi tên thành Thăng Long.",
+  "g": "bac",
+  "s": "bac3",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q045",
+  "a": "KHUCTHUADU",
+  "vi": "Khúc Thừa Dụ",
+  "c": "Hào phú Hồng Châu nắm quyền Tiết độ sứ lúc nhà Đường suy.",
+  "n": "Con ông là Khúc Hạo tiếp nối công việc.",
+  "g": "bac",
+  "s": "bac3",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q046",
+  "a": "KHUCHAO",
+  "vi": "Khúc Hạo",
+  "c": "Con Khúc Thừa Dụ, sửa việc thuế má và sưu dịch.",
+  "n": "Sách ghi ông tổ chức lại lộ, phủ, châu, xã.",
+  "g": "bac",
+  "s": "bac3",
+  "e": "Bắc thuộc · Tiền Lý"
+ },
+ {
+  "id": "q047",
+  "a": "NGOQUYEN",
+  "vi": "Ngô Quyền",
+  "c": "Người phá quân Nam Hán trên sông Bạch Đằng năm 938.",
+  "n": "Chiến thắng được kể ở cuối phần Bắc thuộc lần thứ ba.",
+  "g": "ngo",
+  "s": "bac3",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q048",
+  "a": "BACHDANG",
+  "vi": "Bạch Đằng",
+  "c": "Sông nơi Ngô Quyền bố trí cọc đánh quân Nam Hán.",
+  "n": "Chiến thuật dựa vào nước triều và bãi cọc.",
+  "g": "ngo",
+  "s": "bac3",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q049",
+  "a": "DUONGDIENNGHE",
+  "vi": "Dương Diên Nghệ",
+  "c": "Tướng họ Dương bị Kiều Công Tiễn giết; dùng tên ghi trong sách.",
+  "n": "Nhiều tài liệu khác viết Dương Đình Nghệ; bản này giữ cách gọi của sách.",
+  "g": "ngo",
+  "s": "bac3",
+  "e": "Ngô · Đinh · Tiền Lê",
+  "aliases": [
+   "DUONGDINHNGHE"
+  ]
+ },
+ {
+  "id": "q050",
+  "a": "KIEUCONGTIEN",
+  "vi": "Kiều Công Tiễn",
+  "c": "Người giết Dương Diên Nghệ rồi cầu viện Nam Hán.",
+  "n": "Bản sách ghi Kiểu Công Tiện; trò chơi dùng cách viết tên thường gặp.",
+  "g": "ngo",
+  "s": "bac3",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q051",
+  "a": "NAMHAN",
+  "vi": "Nam Hán",
+  "c": "Nước đưa quân sang rồi thua Ngô Quyền năm 938.",
+  "n": "Sách kể đạo thủy quân tiến vào Bạch Đằng.",
+  "g": "ngo",
+  "s": "bac3",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q052",
+  "a": "COLOA",
+  "vi": "Cổ Loa",
+  "c": "Nơi Ngô Quyền đóng đô khi xưng vương năm 939.",
+  "n": "Sách ghi ông đặt quan chức và sửa việc chính trị.",
+  "g": "ngo",
+  "s": "ngo",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q053",
+  "a": "DUONGTAMKHA",
+  "vi": "Dương Tam Kha",
+  "c": "Người được Ngô Quyền gửi gắm con, sau tự xưng Bình Vương.",
+  "n": "Ngô Xương Văn về sau lật đổ ông.",
+  "g": "ngo",
+  "s": "ngo",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q054",
+  "a": "NGOXUONGNGAP",
+  "vi": "Ngô Xương Ngập",
+  "c": "Con Ngô Quyền, xưng Thiên Sách Vương.",
+  "n": "Ông cùng em là Ngô Xương Văn coi việc nước.",
+  "g": "ngo",
+  "s": "ngo",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q055",
+  "a": "NGOXUONGVAN",
+  "vi": "Ngô Xương Văn",
+  "c": "Con Ngô Quyền, xưng Nam Tấn Vương.",
+  "n": "Ông đón anh trở về sau khi hạ Dương Tam Kha.",
+  "g": "ngo",
+  "s": "ngo",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q056",
+  "a": "TRANLAM",
+  "vi": "Trần Lãm",
+  "c": "Sứ quân giữ Bố Hải Khẩu, còn gọi là Trần Minh Công.",
+  "n": "Đinh Bộ Lĩnh từng nương nhờ và được giao binh quyền.",
+  "g": "ngo",
+  "s": "ngo",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q057",
+  "a": "DOCANHTHAC",
+  "vi": "Đỗ Cảnh Thạc",
+  "c": "Sứ quân giữ Đỗ Động Giang.",
+  "n": "Ông vốn là tướng của nhà Ngô.",
+  "g": "ngo",
+  "s": "ngo",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q058",
+  "a": "DINHBOLINH",
+  "vi": "Đinh Bộ Lĩnh",
+  "c": "Người dẹp loạn sứ quân, lên ngôi hoàng đế năm 968.",
+  "n": "Khi lên ngôi ông đặt quốc hiệu Đại Cồ Việt.",
+  "g": "ngo",
+  "s": "dinh",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q059",
+  "a": "HOALU",
+  "vi": "Hoa Lư",
+  "c": "Kinh đô được Đinh Tiên Hoàng lựa chọn.",
+  "n": "Đây cũng là nơi gắn với buổi khởi nghiệp Đinh Bộ Lĩnh.",
+  "g": "ngo",
+  "s": "dinh",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q060",
+  "a": "DAICOVIET",
+  "vi": "Đại Cồ Việt",
+  "c": "Quốc hiệu được đặt khi Đinh Tiên Hoàng lên ngôi.",
+  "n": "Tên nước xuất hiện trong chương Nhà Đinh.",
+  "g": "ngo",
+  "s": "dinh",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q061",
+  "a": "VANTHANGVUONG",
+  "vi": "Vạn Thắng Vương",
+  "c": "Danh hiệu Đinh Bộ Lĩnh được tôn vì đánh đâu thắng đó.",
+  "n": "Danh hiệu có trước khi ông xưng hoàng đế.",
+  "g": "ngo",
+  "s": "dinh",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q062",
+  "a": "THAIBINH",
+  "vi": "Thái Bình",
+  "c": "Niên hiệu Đinh Tiên Hoàng đặt năm 970.",
+  "n": "Sách ghi việc đặt niên hiệu sau khi lên ngôi.",
+  "g": "ngo",
+  "s": "dinh",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q063",
+  "a": "NGUYENBAC",
+  "vi": "Nguyễn Bặc",
+  "c": "Đại thần được Đinh Tiên Hoàng phong Định Quốc Công.",
+  "n": "Ông là một trong các quan đầu triều Đinh.",
+  "g": "ngo",
+  "s": "dinh",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q064",
+  "a": "DINHLIEN",
+  "vi": "Đinh Liễn",
+  "c": "Con Đinh Tiên Hoàng, được phong Nam Việt Vương.",
+  "n": "Ông từng sang cống nhà Tống.",
+  "g": "ngo",
+  "s": "dinh",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q065",
+  "a": "DOTHICH",
+  "vi": "Đỗ Thích",
+  "c": "Người giết Đinh Tiên Hoàng và Đinh Liễn, theo lời kể của sách.",
+  "n": "Sách kể ông bị triều đình bắt và trị tội.",
+  "g": "ngo",
+  "s": "dinh",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q066",
+  "a": "PHAMCULUONG",
+  "vi": "Phạm Cự Lượng",
+  "c": "Tướng đề nghị quân sĩ tôn Lê Hoàn làm vua trước khi chống Tống.",
+  "n": "Dương Thái hậu thuận theo và trao áo long cổn.",
+  "g": "ngo",
+  "s": "dinh",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q067",
+  "a": "LEHOAN",
+  "vi": "Lê Hoàn",
+  "c": "Tên vua Lê Đại Hành, người mở đầu nhà Tiền Lê.",
+  "n": "Ông từng giữ chức Thập đạo tướng quân dưới triều Đinh.",
+  "g": "ngo",
+  "s": "tienle",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q068",
+  "a": "HAUNHANBAO",
+  "vi": "Hầu Nhân Bảo",
+  "c": "Tướng Tống bị dụ vào chỗ hiểm rồi giết trong cuộc chiến năm 981, theo sách.",
+  "n": "Chi tiết nằm trong mục Phá quân nhà Tống.",
+  "g": "ngo",
+  "s": "tienle",
+  "e": "Ngô · Đinh · Tiền Lê"
+ },
+ {
+  "id": "q069",
+  "a": "LYCONGUAN",
+  "vi": "Lý Công Uẩn",
+  "c": "Tên vị vua được tôn lên sau khi Lê Long Đĩnh mất.",
+  "n": "Ông là Lý Thái Tổ, người mở đầu nhà Lý.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q070",
+  "a": "LYTHAITO",
+  "vi": "Lý Thái Tổ",
+  "c": "Vua nhà Lý dời đô từ Hoa Lư ra Đại La năm 1010.",
+  "n": "Nhà vua đổi tên thành là Thăng Long.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q071",
+  "a": "THANGLONG",
+  "vi": "Thăng Long",
+  "c": "Tên mới của Đại La sau cuộc dời đô năm 1010.",
+  "n": "Sách thuật lại điềm rồng vàng trong câu chuyện đặt tên.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q072",
+  "a": "COPHAP",
+  "vi": "Cổ Pháp",
+  "c": "Quê Lý Công Uẩn, được đổi thành phủ Thiên Đức.",
+  "n": "Địa danh gắn với buổi đầu nhà Lý.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q073",
+  "a": "VANHANH",
+  "vi": "Vạn Hạnh",
+  "c": "Nhà sư cùng Đào Cam Mộc mưu tôn Lý Công Uẩn.",
+  "n": "Ông được nhắc trong mục Thái Tổ khởi nghiệp.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q074",
+  "a": "DAOCAMMOC",
+  "vi": "Đào Cam Mộc",
+  "c": "Quan cùng sư Vạn Hạnh vận động tôn Lý Công Uẩn.",
+  "n": "Hai người góp phần đưa Lý Công Uẩn lên ngôi.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q075",
+  "a": "THUANTHIEN",
+  "vi": "Thuận Thiên",
+  "c": "Niên hiệu của Lý Thái Tổ.",
+  "n": "Sách ghi việc dời đô vào năm đầu niên hiệu này.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q076",
+  "a": "LEPHUNGHIEU",
+  "vi": "Lê Phụng Hiểu",
+  "c": "Võ tướng chém Võ Đức Vương, giúp thái tử Phật Mã định loạn.",
+  "n": "Sự việc diễn ra sau khi Lý Thái Tổ mất.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q077",
+  "a": "PHATMA",
+  "vi": "Phật Mã",
+  "c": "Tên thái tử lên ngôi thành Lý Thái Tông.",
+  "n": "Ông nối ngôi sau cuộc tranh chấp giữa các vương.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q078",
+  "a": "DONGCO",
+  "vi": "Đồng Cổ",
+  "c": "Ngôi đền nơi các quan thề trung hiếu dưới đời Lý Thái Tông.",
+  "n": "Sách kể lệ thề được đặt sau cuộc tranh ngôi.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q079",
+  "a": "MINHDAO",
+  "vi": "Minh Đạo",
+  "c": "Niên hiệu Lý Thái Tông đổi khi sửa luật năm 1042.",
+  "n": "Mục Việc chính trị gắn việc đổi niên hiệu với sửa luật.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q080",
+  "a": "LYTHANHTONG",
+  "vi": "Lý Thánh Tông",
+  "c": "Vua đổi quốc hiệu thành Đại Việt và cho lập Văn Miếu.",
+  "n": "Tên húy của ông là Nhật Tôn.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q081",
+  "a": "DAIVIET",
+  "vi": "Đại Việt",
+  "c": "Quốc hiệu Lý Thánh Tông đặt khi nối ngôi.",
+  "n": "Quốc hiệu được dùng qua nhiều triều đại về sau.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q082",
+  "a": "VANMIEU",
+  "vi": "Văn Miếu",
+  "c": "Nơi Lý Thánh Tông lập để thờ Khổng Tử và các bậc hiền.",
+  "n": "Sách xem đây là một bước mở mang văn học.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q083",
+  "a": "YLAN",
+  "vi": "Ỷ Lan",
+  "c": "Mẹ vua Lý Nhân Tông, từng được phong Nguyên phi.",
+  "n": "Sách kể tên hiệu liên quan đến chuyện đứng tựa cây lan.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q084",
+  "a": "LYDAOTHANH",
+  "vi": "Lý Đạo Thành",
+  "c": "Thái sư làm phụ chính khi Lý Nhân Tông còn nhỏ.",
+  "n": "Sách khen ông chăm việc dân và chọn người hiền.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q085",
+  "a": "LYNHANTONG",
+  "vi": "Lý Nhân Tông",
+  "c": "Vua nhà Lý mở khoa thi năm 1075 và lập Quốc Tử Giám năm 1076.",
+  "n": "Tên húy của ông là Càn Đức.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q086",
+  "a": "LEVANTHINH",
+  "vi": "Lê Văn Thịnh",
+  "c": "Người đỗ đầu khoa thi năm 1075.",
+  "n": "Sách gọi đây là kỳ thi đầu tiên ở nước ta.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q087",
+  "a": "QUOCTUGIAM",
+  "vi": "Quốc Tử Giám",
+  "c": "Cơ sở học tập được lập năm 1076 dưới đời Lý Nhân Tông.",
+  "n": "Sách ghi việc chọn người có văn học vào giảng dạy.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q088",
+  "a": "MACHIENTICH",
+  "vi": "Mạc Hiển Tích",
+  "c": "Người đỗ đầu khoa thi chọn người vào Hàn lâm viện năm 1086.",
+  "n": "Ông được bổ Hàn lâm học sĩ.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q089",
+  "a": "COXA",
+  "vi": "Cơ Xá",
+  "c": "Tên con đê được đắp để giữ kinh thành dưới đời Lý Nhân Tông.",
+  "n": "Chi tiết nằm trong mục Việc sửa sang trong nước.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q090",
+  "a": "LYTHUONGKIET",
+  "vi": "Lý Thường Kiệt",
+  "c": "Danh tướng cùng Tôn Đản mang quân sang đất Tống năm 1075.",
+  "n": "Sách kể cả việc tiến công lẫn cuộc phòng thủ sau đó.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q091",
+  "a": "TONDAN",
+  "vi": "Tôn Đản",
+  "c": "Tướng cùng Lý Thường Kiệt đánh Tống, chỉ huy đạo đánh Ung Châu theo sách.",
+  "n": "Cách gọi tên theo Việt Nam sử lược.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q092",
+  "a": "UNGCHAU",
+  "vi": "Ung Châu",
+  "c": "Thành bị đạo quân Tôn Đản vây đánh trong cuộc tiến công đất Tống.",
+  "n": "Sách kể cuộc vây thành kéo dài hơn 40 ngày.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q093",
+  "a": "CHECU",
+  "vi": "Chế Củ",
+  "c": "Vua Chiêm Thành dâng ba châu để được tha về dưới đời Lý Thánh Tông.",
+  "n": "Ba châu được ghi là Địa Lý, Ma Linh và Bố Chính.",
+  "g": "ly",
+  "s": "ly1",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q094",
+  "a": "TOHIENTHANH",
+  "vi": "Tô Hiến Thành",
+  "c": "Đại thần nổi tiếng trung thành, làm phụ chính đầu đời Lý Cao Tông.",
+  "n": "Ông được sách đề cao cả tài văn lẫn tài võ.",
+  "g": "ly",
+  "s": "ly2",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q095",
+  "a": "LYCHIEUHOANG",
+  "vi": "Lý Chiêu Hoàng",
+  "c": "Nữ vua cuối nhà Lý, nhường ngôi cho Trần Cảnh.",
+  "n": "Cuộc chuyển ngôi mở đầu nhà Trần.",
+  "g": "ly",
+  "s": "ly2",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q096",
+  "a": "DOANHVU",
+  "vi": "Đỗ Anh Vũ",
+  "c": "Quyền thần thời Lý Anh Tông, được Lê Thái hậu tin dùng.",
+  "n": "Chương Nhà Lý tiếp theo có mục riêng về ông.",
+  "g": "ly",
+  "s": "ly2",
+  "e": "Nhà Lý"
+ },
+ {
+  "id": "q097",
+  "a": "TRANCANH",
+  "vi": "Trần Cảnh",
+  "c": "Tên vị vua đầu nhà Trần, tức Trần Thái Tông.",
+  "n": "Ông nhận ngôi từ Lý Chiêu Hoàng.",
+  "g": "tran",
+  "s": "tran1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q098",
+  "a": "TRANTHUDO",
+  "vi": "Trần Thủ Độ",
+  "c": "Thái sư giữ vai trò chính trong việc dựng nhà Trần.",
+  "n": "Tác giả nhận xét cả công lao và những hành động tàn nhẫn của ông.",
+  "g": "tran",
+  "s": "tran1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q099",
+  "a": "TRANLIEU",
+  "vi": "Trần Liễu",
+  "c": "Anh Trần Thái Tông, được phong An Sinh Vương.",
+  "n": "Sách kể mối bất hòa giữa ông với triều đình rồi việc giảng hòa.",
+  "g": "tran",
+  "s": "tran1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q100",
+  "a": "TRANTHAITONG",
+  "vi": "Trần Thái Tông",
+  "c": "Vua đầu nhà Trần, trực tiếp chống cuộc tiến công đầu tiên của Mông Cổ.",
+  "n": "Sách kể ông phản công ở Đông Bộ Đầu.",
+  "g": "tran",
+  "s": "tran1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q101",
+  "a": "DONGBODAU",
+  "vi": "Đông Bộ Đầu",
+  "c": "Địa điểm Trần Thái Tông phản công quân Mông Cổ, theo sách.",
+  "n": "Sau trận này quân Mông Cổ rút về.",
+  "g": "tran",
+  "s": "tran1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q102",
+  "a": "THAITHUONGHOANG",
+  "vi": "Thái thượng hoàng",
+  "c": "Tôn hiệu dành cho vua Trần đã nhường ngôi nhưng còn cùng coi việc nước.",
+  "n": "Trần Thái Tông nhường ngôi cho Trần Hoảng.",
+  "g": "tran",
+  "s": "tran1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q103",
+  "a": "TRANTHANHTONG",
+  "vi": "Trần Thánh Tông",
+  "c": "Vua nhà Trần có tên húy là Trần Hoảng.",
+  "n": "Bộ Đại Việt sử của Lê Văn Hưu hoàn thành dưới đời ông.",
+  "g": "tran",
+  "s": "tran1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q104",
+  "a": "LEVANHUU",
+  "vi": "Lê Văn Hưu",
+  "c": "Sử gia hoàn thành bộ Đại Việt sử gồm 30 quyển năm 1272.",
+  "n": "Sách ghi bộ sử chép từ Triệu Võ Vương đến Lý Chiêu Hoàng.",
+  "g": "tran",
+  "s": "tran1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q105",
+  "a": "TAMKHOI",
+  "vi": "Tam khôi",
+  "c": "Tên gọi chung trạng nguyên, bảng nhãn và thám hoa.",
+  "n": "Nhà Trần đặt các danh hiệu này trong khoa thi năm 1247.",
+  "g": "tran",
+  "s": "tran1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q106",
+  "a": "QUOCHOCVIEN",
+  "vi": "Quốc học viện",
+  "c": "Nơi giảng Tứ thư, Ngũ kinh được lập năm 1253.",
+  "n": "Sách nhắc cùng việc lập Giảng võ đường.",
+  "g": "tran",
+  "s": "tran1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q107",
+  "a": "GIANGVODUONG",
+  "vi": "Giảng võ đường",
+  "c": "Cơ sở luyện võ nghệ được nhà Trần lập năm 1253.",
+  "n": "Tên gọi nằm trong mục Việc học hành.",
+  "g": "tran",
+  "s": "tran1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q108",
+  "a": "TRANNHANTONG",
+  "vi": "Trần Nhân Tông",
+  "c": "Vua cùng Thượng hoàng và Hưng Đạo Vương chống quân Nguyên.",
+  "n": "Sách kể ông triệu các bô lão họp ở điện Diên Hồng.",
+  "g": "tran",
+  "s": "nguyen1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q109",
+  "a": "TRANQUOCTUAN",
+  "vi": "Trần Quốc Tuấn",
+  "c": "Tên của Hưng Đạo Vương, người thống lĩnh chống quân Nguyên.",
+  "n": "Ông được giao điều khiển các vương hầu và tướng sĩ.",
+  "g": "tran",
+  "s": "nguyen1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q110",
+  "a": "DIENHONG",
+  "vi": "Diên Hồng",
+  "c": "Điện nơi các bô lão bàn nên hòa hay đánh quân Nguyên.",
+  "n": "Theo sách, các bô lão đều xin đánh.",
+  "g": "tran",
+  "s": "nguyen1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q111",
+  "a": "BINHTHAN",
+  "vi": "Bình Than",
+  "c": "Nơi vua Trần hội các vương hầu, bách quan bàn việc chống Nguyên.",
+  "n": "Cần phân biệt cuộc họp này với hội bô lão tại Diên Hồng.",
+  "g": "tran",
+  "s": "nguyen1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q112",
+  "a": "VANKIEP",
+  "vi": "Vạn Kiếp",
+  "c": "Địa điểm Hưng Đạo Vương tập hợp đại quân.",
+  "n": "Nơi này được sách chú thích là vùng Kiếp Bạc.",
+  "g": "tran",
+  "s": "nguyen1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q113",
+  "a": "TRANBINHTRONG",
+  "vi": "Trần Bình Trọng",
+  "c": "Tướng bị bắt, khước từ làm vương đất Bắc rồi chịu chết.",
+  "n": "Câu chuyện được kể trong chương Giặc nhà Nguyên.",
+  "g": "tran",
+  "s": "nguyen1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q114",
+  "a": "YETKIEU",
+  "vi": "Yết Kiêu",
+  "c": "Gia tướng cùng Dã Tượng theo Hưng Đạo Vương rút về Vạn Kiếp.",
+  "n": "Sách nhắc hai người trong đoạn rút quân qua bến Bái Tân.",
+  "g": "tran",
+  "s": "nguyen1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q115",
+  "a": "DATUONG",
+  "vi": "Dã Tượng",
+  "c": "Gia tướng cùng Yết Kiêu theo Hưng Đạo Vương.",
+  "n": "Hai gia tướng được nhắc trong cuộc kháng Nguyên.",
+  "g": "tran",
+  "s": "nguyen1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q116",
+  "a": "TRANNHATDUAT",
+  "vi": "Trần Nhật Duật",
+  "c": "Chiêu Văn Vương, tướng chỉ huy đánh ở Hàm Tử.",
+  "n": "Sách có mục riêng về chiến thắng này.",
+  "g": "tran",
+  "s": "nguyen1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q117",
+  "a": "TRANQUANGKHAI",
+  "vi": "Trần Quang Khải",
+  "c": "Tướng đánh Chương Dương rồi khôi phục Thăng Long.",
+  "n": "Ông ngâm thơ mừng chiến thắng Hàm Tử và Chương Dương.",
+  "g": "tran",
+  "s": "nguyen1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q118",
+  "a": "HAMTU",
+  "vi": "Hàm Tử",
+  "c": "Bến sông gắn với chiến thắng của Trần Nhật Duật năm 1285.",
+  "n": "Đây là một thắng lợi trong cuộc phản công của nhà Trần.",
+  "g": "tran",
+  "s": "nguyen1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q119",
+  "a": "CHUONGDUONG",
+  "vi": "Chương Dương",
+  "c": "Bến sông nơi Trần Quang Khải đánh thủy quân Nguyên.",
+  "n": "Sau đó quân Trần tiến về Thăng Long.",
+  "g": "tran",
+  "s": "nguyen1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q120",
+  "a": "TAYKET",
+  "vi": "Tây Kết",
+  "c": "Trận đánh trong đó tướng Toa Đô bị chém, theo sách.",
+  "n": "Sách kể trận này sau Hàm Tử và Chương Dương.",
+  "g": "tran",
+  "s": "nguyen1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q121",
+  "a": "THOATHOAN",
+  "vi": "Thoát Hoan",
+  "c": "Tướng Nguyên chỉ huy các cuộc tiến quân vào Đại Việt.",
+  "n": "Ông phải rút chạy sau những thất bại trước quân Trần.",
+  "g": "tran",
+  "s": "nguyen1",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q122",
+  "a": "TRANKHANHDU",
+  "vi": "Trần Khánh Dư",
+  "c": "Tướng đánh đoàn thuyền lương của Trương Văn Hổ.",
+  "n": "Chiến công được kể trong mục Trận Vân Đồn.",
+  "g": "tran",
+  "s": "nguyen2",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q123",
+  "a": "VANDON",
+  "vi": "Vân Đồn",
+  "c": "Địa bàn gắn với chiến công chặn đoàn thuyền lương Nguyên của Trần Khánh Dư.",
+  "n": "Việc mất lương khiến quân Nguyên thêm khó khăn.",
+  "g": "tran",
+  "s": "nguyen2",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q124",
+  "a": "TRUONGVANHO",
+  "vi": "Trương Văn Hổ",
+  "c": "Người phụ trách đoàn thuyền lương bị Trần Khánh Dư đánh.",
+  "n": "Ông phải dùng thuyền nhỏ trốn về.",
+  "g": "tran",
+  "s": "nguyen2",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q125",
+  "a": "OMANHI",
+  "vi": "Ô Mã Nhi",
+  "c": "Tướng thủy quân Nguyên bị bắt sau trận Bạch Đằng.",
+  "n": "Sách ghi trận thủy chiến vào năm 1288.",
+  "g": "tran",
+  "s": "nguyen2",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q126",
+  "a": "BACHDANG",
+  "vi": "Bạch Đằng",
+  "c": "Sông nơi quân Trần dùng bãi cọc đánh thủy quân Nguyên năm 1288.",
+  "n": "Tác giả liên hệ với chiến công trước đó của Ngô Quyền.",
+  "g": "tran",
+  "s": "nguyen2",
+  "e": "Nhà Trần"
+ },
+ {
+  "id": "q127",
+  "a": "HOQUYLY",
+  "vi": "Hồ Quý Ly",
+  "c": "Người lên ngôi năm 1400, đặt quốc hiệu Đại Ngu.",
+  "n": "Sau đó ông nhường ngôi cho Hồ Hán Thương.",
+  "g": "ho",
+  "s": "ho",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q128",
+  "a": "DAINGU",
+  "vi": "Đại Ngu",
+  "c": "Quốc hiệu do Hồ Quý Ly đặt.",
+  "n": "Sách giải thích tên nước liên quan đến nguồn gốc họ Hồ tự nhận.",
+  "g": "ho",
+  "s": "ho",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q129",
+  "a": "THANHNGUYEN",
+  "vi": "Thánh Nguyên",
+  "c": "Niên hiệu của Hồ Quý Ly.",
+  "n": "Niên hiệu được ghi ở đầu mục nói về ông.",
+  "g": "ho",
+  "s": "ho",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q130",
+  "a": "HOHANTHUONG",
+  "vi": "Hồ Hán Thương",
+  "c": "Con Hồ Quý Ly, được nhường ngôi năm 1401 theo sách.",
+  "n": "Quý Ly vẫn quyết định nhiều việc với ngôi Thái thượng hoàng.",
+  "g": "ho",
+  "s": "ho",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q131",
+  "a": "HONGUYENTRUNG",
+  "vi": "Hồ Nguyên Trừng",
+  "c": "Con trưởng Hồ Quý Ly, cầm quân chống Minh trên các tuyến sông.",
+  "n": "Sách kể ông đánh ở Mộc Phàm Giang rồi rút về.",
+  "g": "ho",
+  "s": "ho",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q132",
+  "a": "DABANG",
+  "vi": "Đa Bang",
+  "c": "Thành nhà Hồ đắp để ngăn quân Minh nhưng bị hạ.",
+  "n": "Mất thành này khiến hệ thống phòng thủ bị phá vỡ.",
+  "g": "ho",
+  "s": "ho",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q133",
+  "a": "TRUONGPHU",
+  "vi": "Trương Phụ",
+  "c": "Tướng Minh lên nắm quyền sau khi Chu Năng chết.",
+  "n": "Ông cùng Mộc Thạnh chỉ huy cuộc đánh nhà Hồ.",
+  "g": "ho",
+  "s": "ho",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q134",
+  "a": "MOCTHANH",
+  "vi": "Mộc Thạnh",
+  "c": "Tướng Minh dẫn đạo quân từ Vân Nam sang đánh nhà Hồ.",
+  "n": "Đạo quân của ông hội với Trương Phụ ở Bạch Hạc.",
+  "g": "ho",
+  "s": "ho",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q135",
+  "a": "DOMAN",
+  "vi": "Đỗ Mãn",
+  "c": "Tướng nhà Hồ cầm quân đánh Chiêm Thành năm 1402.",
+  "n": "Sau chiến dịch, nhà Hồ nhận thêm đất ở phía nam.",
+  "g": "ho",
+  "s": "ho",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q136",
+  "a": "TOANHOC",
+  "vi": "Toán học",
+  "c": "Nội dung được nhà Hồ thêm vào một kỳ thi, theo sách.",
+  "n": "Chi tiết nằm trong mục Việc học hành.",
+  "g": "ho",
+  "s": "ho",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q137",
+  "a": "GIANDINHDE",
+  "vi": "Giản Định Đế",
+  "c": "Đế hiệu của Trần Ngỗi khi khởi binh chống Minh.",
+  "n": "Ông được tôn lập sau khi nhà Hồ mất.",
+  "g": "ho",
+  "s": "hautran",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q138",
+  "a": "TRANNGOI",
+  "vi": "Trần Ngỗi",
+  "c": "Tên người được tôn làm Giản Định Đế.",
+  "n": "Sách xếp cuộc khởi nghĩa của ông vào nhà Hậu Trần.",
+  "g": "ho",
+  "s": "hautran",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q139",
+  "a": "DANGTAT",
+  "vi": "Đặng Tất",
+  "c": "Tướng giúp Giản Định Đế đánh Minh, sau bị vua giết.",
+  "n": "Tác giả xem việc giết công thần là nguyên nhân làm suy lực lượng.",
+  "g": "ho",
+  "s": "hautran",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q140",
+  "a": "BOCO",
+  "vi": "Bô Cô",
+  "c": "Bến sông quân Hậu Trần đánh bại quân Mộc Thạnh.",
+  "n": "Giản Định Đế tự cầm trống thúc quân.",
+  "g": "ho",
+  "s": "hautran",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q141",
+  "a": "DANGDUNG",
+  "vi": "Đặng Dung",
+  "c": "Tướng Hậu Trần từng lên được thuyền Trương Phụ nhưng không nhận ra ông ta.",
+  "n": "Sách chép cả bài thơ thuật hoài của ông.",
+  "g": "ho",
+  "s": "hautran",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q142",
+  "a": "NGUYENCANHCHAN",
+  "vi": "Nguyễn Cảnh Chân",
+  "c": "Tham mưu của Giản Định Đế bị giết cùng Đặng Tất.",
+  "n": "Sự việc khiến nhiều người mất lòng với vua.",
+  "g": "ho",
+  "s": "hautran",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q143",
+  "a": "TRUNGQUANGDE",
+  "vi": "Trùng Quang Đế",
+  "c": "Đế hiệu của Trần Quý Khoách trong cuộc chống Minh.",
+  "n": "Cách viết Quý Khoách theo bản sách đối chiếu.",
+  "g": "ho",
+  "s": "hautran",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q144",
+  "a": "TRANQUYKHOACH",
+  "vi": "Trần Quý Khoách",
+  "c": "Tên vua Trùng Quang theo cách ghi của sách.",
+  "n": "Ông cùng các tướng Hậu Trần tiếp tục chống Minh.",
+  "g": "ho",
+  "s": "hautran",
+  "e": "Hồ · Hậu Trần · thuộc Minh",
+  "aliases": [
+   "TRANQUYKHOANG"
+  ]
+ },
+ {
+  "id": "q145",
+  "a": "DONGQUAN",
+  "vi": "Đông Quan",
+  "c": "Tên thành Hà Nội trong thời thuộc Minh, theo sách.",
+  "n": "Từ đây có tuyến trạm ngựa đi qua Gia Lâm, Từ Sơn.",
+  "g": "ho",
+  "s": "thuocminh",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q146",
+  "a": "LYTRUONG",
+  "vi": "Lý trưởng",
+  "c": "Người đứng đầu một lý trong tổ chức cai trị thời Minh.",
+  "n": "Sách ghi một lý gồm 110 hộ.",
+  "g": "ho",
+  "s": "thuocminh",
+  "e": "Hồ · Hậu Trần · thuộc Minh"
+ },
+ {
+  "id": "q147",
+  "a": "LELOI",
+  "vi": "Lê Lợi",
+  "c": "Người dựng cờ khởi nghĩa ở Lam Sơn năm 1418.",
+  "n": "Ông tự xưng Bình Định Vương khi bắt đầu khởi nghĩa.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q148",
+  "a": "LAMSON",
+  "vi": "Lam Sơn",
+  "c": "Nơi Lê Lợi dựng cờ khởi nghĩa chống Minh.",
+  "n": "Sách xác định địa danh thuộc đất Thanh Hóa.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q149",
+  "a": "BINHDINHVUONG",
+  "vi": "Bình Định Vương",
+  "c": "Danh xưng của Lê Lợi khi khởi nghĩa.",
+  "n": "Danh xưng được dùng xuyên suốt chương Mười năm đánh quân Tàu.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q150",
+  "a": "LELAI",
+  "vi": "Lê Lai",
+  "c": "Người mặc áo ngự bào, đánh ra để cứu Lê Lợi khi bị vây.",
+  "n": "Sách thuật chuyện này trong lần lui về Chí Linh.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q151",
+  "a": "CHILINH",
+  "vi": "Chí Linh",
+  "c": "Núi nghĩa quân Lam Sơn nhiều lần lui về khi thế yếu.",
+  "n": "Sách kể ba lần lui về địa điểm này.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q152",
+  "a": "NGUYENTRAI",
+  "vi": "Nguyễn Trãi",
+  "c": "Người dâng kế bình Ngô rồi giúp Lê Lợi làm tham mưu.",
+  "n": "Ông còn được giao soạn Bình Ngô đại cáo.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q153",
+  "a": "NGUYENPHIKHANH",
+  "vi": "Nguyễn Phi Khanh",
+  "c": "Cha Nguyễn Trãi, bị quân Minh đưa về Trung Quốc.",
+  "n": "Theo sách, ông khuyên con trở lại lo việc cứu nước.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q154",
+  "a": "LECHICH",
+  "vi": "Lê Chích",
+  "c": "Tướng đề xuất tiến vào Nghệ An; điền tên gọi của ông trong sách.",
+  "n": "Sách gọi ông là Lê Chích; thường được biết đến với tên Nguyễn Chích.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ",
+  "aliases": [
+   "NGUYENCHICH"
+  ]
+ },
+ {
+  "id": "q155",
+  "a": "NGHEAN",
+  "vi": "Nghệ An",
+  "c": "Vùng đất Lê Chích đề nghị nghĩa quân tiến vào để xây dựng lực lượng.",
+  "n": "Sau đó quân Lam Sơn mở rộng quyền kiểm soát về phía nam.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q156",
+  "a": "DINHLE",
+  "vi": "Đinh Lễ",
+  "c": "Tướng cùng Nguyễn Xí đưa quân đến Cao Bộ rồi bố trí phục kích ở Tụy Động.",
+  "n": "Sách ghi chiến thắng lớn vào năm 1426.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q157",
+  "a": "NGUYENXI",
+  "vi": "Nguyễn Xí",
+  "c": "Tướng cùng Đinh Lễ bố trí phục binh đánh quân Vương Thông.",
+  "n": "Ông còn tiếp tục giữ vai trò trong triều Lê.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q158",
+  "a": "TRANNGUYENHAN",
+  "vi": "Trần Nguyên Hãn",
+  "c": "Tướng được sai đánh Tân Bình và Thuận Hóa.",
+  "n": "Ông còn chỉ huy thủy quân ra vây Đông Quan.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q159",
+  "a": "TUYDONG",
+  "vi": "Tụy Động",
+  "c": "Tên trận thắng năm 1426 của Lam Sơn theo cách gọi trong sách.",
+  "n": "Tên thường gặp ở tài liệu khác là Tốt Động; bản này dùng cách gọi của sách.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ",
+  "aliases": [
+   "TOTDONG"
+  ]
+ },
+ {
+  "id": "q160",
+  "a": "CHUCDONG",
+  "vi": "Chúc Động",
+  "c": "Địa điểm đặt phục binh cùng Tụy Động trong trận năm 1426.",
+  "n": "Quân Lam Sơn biết mưu quân Minh nhờ bắt được người do thám.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q161",
+  "a": "VUONGTHONG",
+  "vi": "Vương Thông",
+  "c": "Tướng Minh thua trận Tụy Động, rút về giữ Đông Quan.",
+  "n": "Sau đó ông thương lượng rút quân.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q162",
+  "a": "CHILANG",
+  "vi": "Chi Lăng",
+  "c": "Ải nơi Liễu Thăng tử trận trong cuộc cứu viện năm 1427.",
+  "n": "Chiến thắng làm thay đổi hẳn thế trận cuối cuộc khởi nghĩa.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q163",
+  "a": "LIEUTHANG",
+  "vi": "Liễu Thăng",
+  "c": "Tướng chỉ huy viện binh Minh bị chém ở Chi Lăng.",
+  "n": "Sách đặt tên mục Trận Chi Lăng theo sự kiện này.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q164",
+  "a": "BODE",
+  "vi": "Bồ Đề",
+  "c": "Nơi Lê Lợi đóng quân khi vây Đông Quan.",
+  "n": "Địa điểm nằm đối diện thành, bên kia sông.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q165",
+  "a": "BINHNGODAICAO",
+  "vi": "Bình Ngô đại cáo",
+  "c": "Văn bản Nguyễn Trãi soạn để báo việc bình định sau khi thắng Minh.",
+  "n": "Sách chép cả nội dung và phần phiên âm của bài cáo.",
+  "g": "le",
+  "s": "lamson",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q166",
+  "a": "LETHAITO",
+  "vi": "Lê Thái Tổ",
+  "c": "Miếu hiệu của Lê Lợi khi dựng nhà Lê.",
+  "n": "Triều đại mở đầu sau thắng lợi khởi nghĩa Lam Sơn.",
+  "g": "le",
+  "s": "leso",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q167",
+  "a": "LETHANHTONG",
+  "vi": "Lê Thánh Tông",
+  "c": "Vua nhà Lê có hai niên hiệu Quang Thuận và Hồng Đức.",
+  "n": "Sách đề cao việc sửa sang chính trị, văn học và võ bị của ông.",
+  "g": "le",
+  "s": "leso",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q168",
+  "a": "HONGDUC",
+  "vi": "Hồng Đức",
+  "c": "Niên hiệu từ năm 1470 của Lê Thánh Tông.",
+  "n": "Sách dùng tên này khi nói về pháp luật và văn trị thời Lê.",
+  "g": "le",
+  "s": "leso",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q169",
+  "a": "QUANGTHUAN",
+  "vi": "Quang Thuận",
+  "c": "Niên hiệu đầu của Lê Thánh Tông, trước Hồng Đức.",
+  "n": "Hai niên hiệu được ghi ở đầu mục về nhà vua.",
+  "g": "le",
+  "s": "leso",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q170",
+  "a": "NGOSILIEN",
+  "vi": "Ngô Sĩ Liên",
+  "c": "Sử gia được Lê Thánh Tông giao soạn bộ sử gồm 15 quyển.",
+  "n": "Sách chia bộ sử thành phần trước và từ Đinh đến Lê Thái Tổ.",
+  "g": "le",
+  "s": "leso",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q171",
+  "a": "THANNHANTRUNG",
+  "vi": "Thân Nhân Trung",
+  "c": "Đại thần cùng Đỗ Nhuận soạn Thiên Nam dư hạ tập.",
+  "n": "Ông cũng tham gia xướng họa với Lê Thánh Tông.",
+  "g": "le",
+  "s": "leso",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q172",
+  "a": "DONHUAN",
+  "vi": "Đỗ Nhuận",
+  "c": "Đại thần cùng Thân Nhân Trung biên soạn Thiên Nam dư hạ tập.",
+  "n": "Tác phẩm được sách ghi là gồm 100 quyển.",
+  "g": "le",
+  "s": "leso",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q173",
+  "a": "TAODAN",
+  "vi": "Tao đàn",
+  "c": "Hai chữ đứng trước “nguyên súy” trong danh xưng thơ văn của Lê Thánh Tông.",
+  "n": "Sách kể nhà vua cùng 28 triều thần xướng họa.",
+  "g": "le",
+  "s": "leso",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q174",
+  "a": "LEHIENTONG",
+  "vi": "Lê Hiến Tông",
+  "c": "Vua nối Lê Thánh Tông, dùng niên hiệu Cảnh Thống.",
+  "n": "Sách nhận xét ông tiếp tục chính trị đời Hồng Đức.",
+  "g": "le",
+  "s": "leso",
+  "e": "Lam Sơn · Lê sơ"
+ },
+ {
+  "id": "q175",
+  "a": "MACDANGDUNG",
+  "vi": "Mạc Đăng Dung",
+  "c": "Người lấy ngôi nhà Lê năm 1527, mở đầu nhà Mạc.",
+  "n": "Ông đặt niên hiệu Minh Đức.",
+  "g": "mac",
+  "s": "nam_bac",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q176",
+  "a": "MINHDUC",
+  "vi": "Minh Đức",
+  "c": "Niên hiệu của Mạc Đăng Dung khi lên ngôi.",
+  "n": "Tên này mở đầu chương Nam triều, Bắc triều.",
+  "g": "mac",
+  "s": "nam_bac",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q177",
+  "a": "MACDANGDOANH",
+  "vi": "Mạc Đăng Doanh",
+  "c": "Con Mạc Đăng Dung, nối ngôi và đặt niên hiệu Đại Chính.",
+  "n": "Đăng Dung vẫn giữ ảnh hưởng khi làm Thái thượng hoàng.",
+  "g": "mac",
+  "s": "nam_bac",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q178",
+  "a": "DAICHINH",
+  "vi": "Đại Chính",
+  "c": "Niên hiệu của Mạc Đăng Doanh.",
+  "n": "Sách ghi niên hiệu từ năm 1530.",
+  "g": "mac",
+  "s": "nam_bac",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q179",
+  "a": "COTRAI",
+  "vi": "Cổ Trai",
+  "c": "Nơi Mạc Đăng Dung lui về sau khi nhường ngôi.",
+  "n": "Ông giữ danh vị Thái thượng hoàng.",
+  "g": "mac",
+  "s": "nam_bac",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q180",
+  "a": "NGUYENKIM",
+  "vi": "Nguyễn Kim",
+  "c": "Cựu thần sang Ai Lao, tìm hậu duệ nhà Lê để khôi phục triều đại.",
+  "n": "Ông là cha của Nguyễn Hoàng.",
+  "g": "mac",
+  "s": "nam_bac",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q181",
+  "a": "LETRANGTONG",
+  "vi": "Lê Trang Tông",
+  "c": "Vua được Nguyễn Kim tôn lập để trung hưng nhà Lê.",
+  "n": "Tên húy được sách ghi là Duy Ninh.",
+  "g": "mac",
+  "s": "nam_bac",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q182",
+  "a": "TRINHKIEM",
+  "vi": "Trịnh Kiểm",
+  "c": "Con rể Nguyễn Kim, nhận binh quyền sau khi Nguyễn Kim mất.",
+  "n": "Từ đó quyền lực dần về họ Trịnh.",
+  "g": "mac",
+  "s": "nam_bac",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q183",
+  "a": "TRINHTUNG",
+  "vi": "Trịnh Tùng",
+  "c": "Người con Trịnh Kiểm cầm quân chống nhà Mạc.",
+  "n": "Ông giành quyền trong cuộc tranh chấp với Trịnh Cối.",
+  "g": "mac",
+  "s": "nam_bac",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q184",
+  "a": "PHUNGKHACKHOAN",
+  "vi": "Phùng Khắc Khoan",
+  "c": "Danh sĩ được gọi là Trạng Bùng, vào giúp nhà Lê.",
+  "n": "Sách nhắc ông trong quá trình trung hưng.",
+  "g": "mac",
+  "s": "nam_bac",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q185",
+  "a": "NGUYENBINHKHIEM",
+  "vi": "Nguyễn Bỉnh Khiêm",
+  "c": "Danh sĩ còn gọi là Trạng Trình, được Trịnh Kiểm hỏi kế theo tục truyền.",
+  "n": "Sách kể lời khuyên thông qua chuyện giữ chùa và gieo giống cũ.",
+  "g": "mac",
+  "s": "nam_bac",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q186",
+  "a": "VANLAI",
+  "vi": "Vạn Lại",
+  "c": "Đồn ở Thanh Hóa nơi Trịnh Kiểm lập hành điện cho vua Lê.",
+  "n": "Địa điểm gắn với căn cứ Nam triều.",
+  "g": "mac",
+  "s": "nam_bac",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q187",
+  "a": "NGUYENHOANG",
+  "vi": "Nguyễn Hoàng",
+  "c": "Người vào trấn Thuận Hóa năm 1558.",
+  "n": "Sách kể nhiều quân dân Thanh, Nghệ đưa gia đình theo vào.",
+  "g": "mac",
+  "s": "trinhnguyen",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q188",
+  "a": "THUANHOA",
+  "vi": "Thuận Hóa",
+  "c": "Vùng đất Nguyễn Hoàng được giao trấn giữ năm 1558.",
+  "n": "Đây là chỗ dựng nghiệp của họ Nguyễn ở phía nam.",
+  "g": "mac",
+  "s": "trinhnguyen",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q189",
+  "a": "AITU",
+  "vi": "Ái Tử",
+  "c": "Nơi Nguyễn Hoàng đặt chỗ đóng khi vào Thuận Hóa.",
+  "n": "Sách chú thích thuộc vùng Quảng Trị.",
+  "g": "mac",
+  "s": "trinhnguyen",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q190",
+  "a": "HOANHSON",
+  "vi": "Hoành Sơn",
+  "c": "Dãy núi trong lời khuyên Nguyễn Bỉnh Khiêm gửi Nguyễn Hoàng.",
+  "n": "Tác giả chú thích đây là núi Đèo Ngang.",
+  "g": "mac",
+  "s": "trinhnguyen",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q191",
+  "a": "NGOCBAO",
+  "vi": "Ngọc Bảo",
+  "c": "Chị Nguyễn Hoàng, vợ Trịnh Kiểm.",
+  "n": "Nguyễn Hoàng nhờ bà xin cho vào trấn phía nam.",
+  "g": "mac",
+  "s": "trinhnguyen",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q192",
+  "a": "NGUYENUONG",
+  "vi": "Nguyễn Uông",
+  "c": "Anh Nguyễn Hoàng, bị Trịnh Kiểm giết theo lời kể của sách.",
+  "n": "Biến cố khiến Nguyễn Hoàng lo tìm nơi dung thân.",
+  "g": "mac",
+  "s": "trinhnguyen",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q193",
+  "a": "MACCUU",
+  "vi": "Mạc Cửu",
+  "c": "Người gây dựng thế lực ở Hà Tiên rồi theo chúa Nguyễn.",
+  "n": "Sách kể việc Hà Tiên gia nhập quyền quản lĩnh của chúa Nguyễn.",
+  "g": "mac",
+  "s": "namha",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q194",
+  "a": "HATIEN",
+  "vi": "Hà Tiên",
+  "c": "Trấn gắn với Mạc Cửu và Mạc Thiên Tứ.",
+  "n": "Đây là một địa bàn quan trọng trong việc mở rộng phía nam.",
+  "g": "mac",
+  "s": "namha",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q195",
+  "a": "MACTHIENTU",
+  "vi": "Mạc Thiên Tứ",
+  "c": "Con Mạc Cửu, tiếp tục cai quản Hà Tiên.",
+  "n": "Ông tham gia nhiều việc giao thiệp với Chân Lạp và Tiêm La.",
+  "g": "mac",
+  "s": "namha",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q196",
+  "a": "NGUYENCUTRINH",
+  "vi": "Nguyễn Cư Trinh",
+  "c": "Quan được chúa Nguyễn sai đánh Nặc Nguyên và thu xếp đất phía nam.",
+  "n": "Sách nhắc ông cùng Trương Phúc Du.",
+  "g": "mac",
+  "s": "namha",
+  "e": "Mạc · Lê trung hưng · Trịnh–Nguyễn"
+ },
+ {
+  "id": "q197",
+  "a": "TAYSON",
+  "vi": "Tây Sơn",
+  "c": "Ấp nơi anh em Nguyễn Nhạc khởi binh, thành tên gọi của một triều đại.",
+  "n": "Sách gắn địa danh với đất Quy Nhơn.",
+  "g": "tayson",
+  "s": "taysondaynghiep",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q198",
+  "a": "NGUYENNHAC",
+  "vi": "Nguyễn Nhạc",
+  "c": "Người anh cả trong ba anh em Tây Sơn, xưng đế và đặt niên hiệu Thái Đức.",
+  "n": "Ông là người giữ đất Quy Nhơn trong thế lực Tây Sơn.",
+  "g": "tayson",
+  "s": "taysondaynghiep",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q199",
+  "a": "NGUYENLU",
+  "vi": "Nguyễn Lữ",
+  "c": "Người em trong ba anh em Tây Sơn, cùng Nhạc và Huệ.",
+  "n": "Ba anh em được kể trong buổi khởi nghiệp.",
+  "g": "tayson",
+  "s": "taysondaynghiep",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q200",
+  "a": "THAIDUC",
+  "vi": "Thái Đức",
+  "c": "Niên hiệu của Nguyễn Nhạc.",
+  "n": "Cần phân biệt với Quang Trung của Nguyễn Huệ.",
+  "g": "tayson",
+  "s": "taysondaynghiep",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q201",
+  "a": "NGUYENHUE",
+  "vi": "Nguyễn Huệ",
+  "c": "Người từ Bắc Bình Vương lên ngôi hoàng đế, niên hiệu Quang Trung.",
+  "n": "Ông trực tiếp cầm quân đánh Thanh đầu năm 1789.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q202",
+  "a": "QUANGTRUNG",
+  "vi": "Quang Trung",
+  "c": "Niên hiệu Nguyễn Huệ đặt khi lên ngôi năm 1788.",
+  "n": "Sách dành nhiều mục cho võ công và chính trị của ông.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q203",
+  "a": "BACBINHVUONG",
+  "vi": "Bắc Bình Vương",
+  "c": "Tước hiệu Nguyễn Huệ mang trước khi xưng đế.",
+  "n": "Khi mang tước này, ông đóng ở Phú Xuân.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q204",
+  "a": "PHUXUAN",
+  "vi": "Phú Xuân",
+  "c": "Nơi Nguyễn Huệ đóng trước khi lên ngôi và ra Bắc đánh Thanh.",
+  "n": "Sách ghi tin quân Thanh được báo gấp về đây.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q205",
+  "a": "TONSINGHI",
+  "vi": "Tôn Sĩ Nghị",
+  "c": "Tổng đốc Lưỡng Quảng chỉ huy quân Thanh sang nước ta.",
+  "n": "Ông bỏ chạy sau khi Tây Sơn phá các đồn.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q206",
+  "a": "NGOVANSO",
+  "vi": "Ngô Văn Sở",
+  "c": "Tướng Tây Sơn rút quân từ Thăng Long về Tam Điệp khi Thanh tiến sang.",
+  "n": "Ông sai người báo gấp về Phú Xuân.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q207",
+  "a": "TAMDIEP",
+  "vi": "Tam Điệp",
+  "c": "Dãy núi nơi quân Tây Sơn lui về chờ Nguyễn Huệ.",
+  "n": "Quang Trung đến đây rồi tổ chức tiến quân ra Bắc.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q208",
+  "a": "HAHOI",
+  "vi": "Hà Hồi",
+  "c": "Đồn quân Thanh đầu hàng sau khi quân Quang Trung vây và gọi loa.",
+  "n": "Sách kể việc này diễn ra trước trận Ngọc Hồi.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q209",
+  "a": "NGOCHOI",
+  "vi": "Ngọc Hồi",
+  "c": "Đồn bị quân Tây Sơn dùng ván bọc rơm ướt che chắn để tiến đánh.",
+  "n": "Quang Trung cưỡi voi đốc chiến theo lời kể của sách.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q210",
+  "a": "DONGDA",
+  "vi": "Đống Đa",
+  "c": "Nơi quân Sầm Nghi Đống đóng và bị Tây Sơn vây đánh.",
+  "n": "Sách kể tướng Thanh tự tận khi thất thế.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q211",
+  "a": "SAMNGHIDONG",
+  "vi": "Sầm Nghi Đống",
+  "c": "Tướng Thanh tự tận khi bị vây ở Đống Đa.",
+  "n": "Ông là tri phủ Điền Châu trong đạo quân tiến sang.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q212",
+  "a": "KYDAU",
+  "vi": "Kỷ Dậu",
+  "c": "Tên can chi của năm 1789, khi Quang Trung đại phá quân Thanh.",
+  "n": "Chiến dịch diễn ra vào dịp đầu xuân.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q213",
+  "a": "THANGLONG",
+  "vi": "Thăng Long",
+  "c": "Thành Quang Trung tiến vào trưa mồng 5 sau khi đánh thắng quân Thanh, theo sách.",
+  "n": "Sau chiến thắng ông ra lệnh chiêu an.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q214",
+  "a": "CHUNOM",
+  "vi": "Chữ Nôm",
+  "c": "Lối chữ được triều Tây Sơn dùng trong việc cai trị và thi cử.",
+  "n": "Tác giả giải thích chủ trương dùng tiếng, chữ của nước mình.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q215",
+  "a": "CANHTHINH",
+  "vi": "Cảnh Thịnh",
+  "c": "Niên hiệu của người nối ngôi Quang Trung.",
+  "n": "Sách kể sự suy yếu của Tây Sơn dưới triều này.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q216",
+  "a": "NGUYENQUANGBINH",
+  "vi": "Nguyễn Quang Bình",
+  "c": "Tên được sách ghi Nguyễn Huệ đổi sang.",
+  "n": "Tên xuất hiện ở đầu mục Vua Quang Trung.",
+  "g": "tayson",
+  "s": "tayson",
+  "e": "Tây Sơn"
+ },
+ {
+  "id": "q217",
+  "a": "GIALONG",
+  "vi": "Gia Long",
+  "c": "Niên hiệu của Nguyễn Ánh khi dựng nhà Nguyễn.",
+  "n": "Sách kể ông thu phục cơ nghiệp cũ và thống nhất nam bắc.",
+  "g": "nguyen",
+  "s": "gialong",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q218",
+  "a": "NGUYENANH",
+  "vi": "Nguyễn Ánh",
+  "c": "Tên vị vua sau lấy niên hiệu Gia Long.",
+  "n": "Cuộc tranh hùng với Tây Sơn kéo dài nhiều năm.",
+  "g": "nguyen",
+  "s": "gialong",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q219",
+  "a": "PHUXUAN",
+  "vi": "Phú Xuân",
+  "c": "Kinh đô của Gia Long, tức thành Huế theo sách.",
+  "n": "Từ đây triều Nguyễn tổ chức lại việc cai trị.",
+  "g": "nguyen",
+  "s": "gialong",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q220",
+  "a": "VIETNAM",
+  "vi": "Việt Nam",
+  "c": "Quốc hiệu được xác lập dưới đời Gia Long.",
+  "n": "Sách kể việc nhà Thanh phong vương năm 1804.",
+  "g": "nguyen",
+  "s": "gialong",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q221",
+  "a": "NGUYENVANTHANH",
+  "vi": "Nguyễn Văn Thành",
+  "c": "Đại thần được giao làm tổng tài soạn luật năm 1811.",
+  "n": "Bộ luật hoàn thành rồi được in phát năm 1815.",
+  "g": "nguyen",
+  "s": "gialong",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q222",
+  "a": "THAIHOA",
+  "vi": "Thái Hòa",
+  "c": "Ngôi điện Gia Long làm lễ xưng đế hiệu năm 1806, theo sách.",
+  "n": "Chi tiết được phân biệt với việc đặt niên hiệu năm 1802.",
+  "g": "nguyen",
+  "s": "gialong",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q223",
+  "a": "CONGDIEN",
+  "vi": "Công điền",
+  "c": "Loại ruộng của làng xã bị cấm mua bán dưới đời Gia Long.",
+  "n": "Sách nêu lệ cấm bán và giới hạn việc cầm cố.",
+  "g": "nguyen",
+  "s": "gialong",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q224",
+  "a": "MINHMENH",
+  "vi": "Minh Mệnh",
+  "c": "Niên hiệu vị vua nối Gia Long, theo cách viết trong sách.",
+  "n": "Tên thường dùng hiện nay là Minh Mạng.",
+  "g": "nguyen",
+  "s": "minhmang",
+  "e": "Nhà Nguyễn",
+  "aliases": [
+   "MINHMANG"
+  ]
+ },
+ {
+  "id": "q225",
+  "a": "DAM",
+  "vi": "Đảm",
+  "c": "Tên húy của vị hoàng thái tử nối Gia Long năm 1820.",
+  "n": "Nhà vua lấy niên hiệu Minh Mệnh.",
+  "g": "nguyen",
+  "s": "minhmang",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q226",
+  "a": "NOICAC",
+  "vi": "Nội các",
+  "c": "Cơ quan được đổi tên từ Văn thư phòng năm 1829.",
+  "n": "Cơ quan này lo văn thư và các việc cơ yếu bên vua.",
+  "g": "nguyen",
+  "s": "minhmang",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q227",
+  "a": "COMATVIEN",
+  "vi": "Cơ mật viện",
+  "c": "Cơ quan lo việc quân quốc cơ yếu, lập năm 1834.",
+  "n": "Ban đầu các đại thần phụ trách gồm bốn viên.",
+  "g": "nguyen",
+  "s": "minhmang",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q228",
+  "a": "TONNHANPHU",
+  "vi": "Tôn nhân phủ",
+  "c": "Cơ quan coi việc trong họ nhà vua, lập năm 1836.",
+  "n": "Sách kể việc đặt quan chức riêng để quản lý tông thất.",
+  "g": "nguyen",
+  "s": "minhmang",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q229",
+  "a": "KIMBAI",
+  "vi": "Kim bài",
+  "c": "Vật các đại thần Cơ mật viện được đặc chỉ cho đeo.",
+  "n": "Sách nhắc việc này để phân biệt với các quan khác.",
+  "g": "nguyen",
+  "s": "minhmang",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q230",
+  "a": "VANTHUPHONG",
+  "vi": "Văn thư phòng",
+  "c": "Tên cơ quan được đổi thành Nội các năm 1829.",
+  "n": "Tên này có từ đầu đời Minh Mệnh.",
+  "g": "nguyen",
+  "s": "minhmang",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q231",
+  "a": "QUOCTUGIAM",
+  "vi": "Quốc Tử Giám",
+  "c": "Trường được Minh Mệnh mở cho giám sinh ăn học, hưởng lương bổng.",
+  "n": "Sách đặt việc học vào chủ trương gây dựng nhân tài.",
+  "g": "nguyen",
+  "s": "minhmang",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q232",
+  "a": "DAINAM",
+  "vi": "Đại Nam",
+  "c": "Quốc hiệu sách ghi vua Minh Mệnh đổi từ Việt Nam.",
+  "n": "Tên được nhắc trong phần mở đầu Nước Việt Nam.",
+  "g": "nguyen",
+  "s": "nuocvn",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q233",
+  "a": "THIEUTRI",
+  "vi": "Thiệu Trị",
+  "c": "Niên hiệu của vua Hiến Tổ nhà Nguyễn.",
+  "n": "Nhà vua nối Minh Mệnh.",
+  "g": "nguyen",
+  "s": "thieutri",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q234",
+  "a": "HIENTO",
+  "vi": "Hiến Tổ",
+  "c": "Miếu hiệu của vua Thiệu Trị.",
+  "n": "Sách dùng miếu hiệu này làm tên một chương.",
+  "g": "nguyen",
+  "s": "thieutri",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q235",
+  "a": "TUDUC",
+  "vi": "Tự Đức",
+  "c": "Niên hiệu của vua Dực Tông, trị vì khi Pháp đánh Đà Nẵng năm 1858.",
+  "n": "Các chương sau kể những biến động trong triều này.",
+  "g": "nguyen",
+  "s": "tuduc",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q236",
+  "a": "DUCTONG",
+  "vi": "Dực Tông",
+  "c": "Miếu hiệu của vua Tự Đức.",
+  "n": "Sách dùng tên này khi nói về nhà vua và triều chính.",
+  "g": "nguyen",
+  "s": "tuduc",
+  "e": "Nhà Nguyễn"
+ },
+ {
+  "id": "q237",
+  "a": "DANANG",
+  "vi": "Đà Nẵng",
+  "c": "Cửa biển liên quân Pháp và I Pha Nho tiến đánh năm 1858.",
+  "n": "Sách ghi việc bắn phá các đồn lũy và hạ thành.",
+  "g": "phap",
+  "s": "namky",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q238",
+  "a": "GIADINH",
+  "vi": "Gia Định",
+  "c": "Thành quân Pháp đánh chiếm năm 1859 sau chiến dịch Đà Nẵng.",
+  "n": "Quân Pháp tiến qua cửa Cần Giờ.",
+  "g": "phap",
+  "s": "namky",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q239",
+  "a": "CANGIO",
+  "vi": "Cần Giờ",
+  "c": "Cửa biển quân Pháp đi vào để tiến đánh Gia Định.",
+  "n": "Sách kể tiếp việc đánh phá các đồn trên sông Đồng Nai.",
+  "g": "phap",
+  "s": "namky",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q240",
+  "a": "NGUYENTRIPHUONG",
+  "vi": "Nguyễn Tri Phương",
+  "c": "Đại thần tổ chức phòng thủ Đà Nẵng rồi Gia Định.",
+  "n": "Sách kể ông cùng Phạm Thế Hiển xây dựng tuyến đồn.",
+  "g": "phap",
+  "s": "namky",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q241",
+  "a": "KYHOA",
+  "vi": "Kỳ Hòa",
+  "c": "Tên dãy đồn Nguyễn Tri Phương xây ở Gia Định, theo cách gọi trong sách.",
+  "n": "Tác giả chú thích người Pháp gọi là Chí Hòa.",
+  "g": "phap",
+  "s": "namky",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q242",
+  "a": "VUDUYNINH",
+  "vi": "Vũ Duy Ninh",
+  "c": "Quan hộ đốc tự tận khi thành Gia Định thất thủ.",
+  "n": "Biến cố được kể trong mục Quân Pháp vào đánh Gia Định.",
+  "g": "phap",
+  "s": "namky",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q243",
+  "a": "NHAMTUAT",
+  "vi": "Nhâm Tuất",
+  "c": "Tên can chi của năm ký hòa ước 1862 nhượng ba tỉnh miền Đông.",
+  "n": "Ba tỉnh được ghi là Biên Hòa, Gia Định và Định Tường.",
+  "g": "phap",
+  "s": "namky",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q244",
+  "a": "PHANTHANHGIAN",
+  "vi": "Phan Thanh Giản",
+  "c": "Đại thần được cử thương lượng hòa ước 1862, sau tự tận khi mất ba tỉnh miền Tây.",
+  "n": "Sách chép ông uống thuốc độc tự tận sau khi mất Vĩnh Long, An Giang và Hà Tiên.",
+  "g": "phap",
+  "s": "namky",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q245",
+  "a": "LAMDUYTIEP",
+  "vi": "Lâm Duy Tiếp",
+  "c": "Người cùng Phan Thanh Giản đi giảng hòa năm 1862, dùng tên trong sách.",
+  "n": "Một số tài liệu dùng cách gọi Lâm Duy Hiệp.",
+  "g": "phap",
+  "s": "namky",
+  "e": "Kháng Pháp · Cần Vương",
+  "aliases": [
+   "LAMDUYHIEP"
+  ]
+ },
+ {
+  "id": "q246",
+  "a": "BIENHOA",
+  "vi": "Biên Hòa",
+  "c": "Một trong ba tỉnh nhượng theo hòa ước 1862, cùng Gia Định và Định Tường.",
+  "n": "Tỉnh này bị đánh chiếm trước khi ký hòa ước.",
+  "g": "phap",
+  "s": "namky",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q247",
+  "a": "DINHTUONG",
+  "vi": "Định Tường",
+  "c": "Tỉnh có thành Mỹ Tho, bị Pháp đánh chiếm năm 1861.",
+  "n": "Sau đó tỉnh nằm trong ba tỉnh nhượng theo hòa ước 1862.",
+  "g": "phap",
+  "s": "namky",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q248",
+  "a": "VINHLONG",
+  "vi": "Vĩnh Long",
+  "c": "Tỉnh được trả lại sau hòa ước 1862 rồi bị chiếm năm 1867.",
+  "n": "Sách kể cùng việc mất An Giang và Hà Tiên.",
+  "g": "phap",
+  "s": "namky",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q249",
+  "a": "PHAMPHUTHU",
+  "vi": "Phạm Phú Thứ",
+  "c": "Đại thần cùng Phan Thanh Giản và Ngụy Khắc Đản đi sứ sang Pháp.",
+  "n": "Chuyến đi nhằm thương nghị sau việc nhượng đất.",
+  "g": "phap",
+  "s": "namky",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q250",
+  "a": "HANOI",
+  "vi": "Hà Nội",
+  "c": "Thành Nguyễn Tri Phương giữ khi quân Pháp đánh năm 1873.",
+  "n": "Sự việc thuộc chương Lấy Bắc kỳ lần thứ nhất.",
+  "g": "phap",
+  "s": "bac1phap",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q251",
+  "a": "HOANGDIEU",
+  "vi": "Hoàng Diệu",
+  "c": "Tổng đốc tuẫn tiết khi quân Pháp đánh thành Hà Nội năm 1882.",
+  "n": "Sách kể việc ông tự tận sau khi thành thất thủ.",
+  "g": "phap",
+  "s": "bac2phap",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q252",
+  "a": "HAMNGHI",
+  "vi": "Hàm Nghi",
+  "c": "Vua được Tôn Thất Thuyết đưa khỏi kinh thành, trở thành ngọn cờ Cần Vương.",
+  "n": "Sách kể nhà vua tiếp tục chống Pháp ở vùng Quảng Bình.",
+  "g": "phap",
+  "s": "canvuong",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q253",
+  "a": "TONTHATTHUYET",
+  "vi": "Tôn Thất Thuyết",
+  "c": "Quan phụ chính đưa vua Hàm Nghi ra khỏi kinh thành Huế.",
+  "n": "Ông chuẩn bị căn cứ Tân Sở để kháng cự.",
+  "g": "phap",
+  "s": "canvuong",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q254",
+  "a": "TANSO",
+  "vi": "Tân Sở",
+  "c": "Căn cứ gần Cam Lộ, Quảng Trị, được chuẩn bị trước cuộc rời kinh thành.",
+  "n": "Tôn Thất Thuyết đưa vua Hàm Nghi lên đây.",
+  "g": "phap",
+  "s": "canvuong",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q255",
+  "a": "CANVUONG",
+  "vi": "Cần Vương",
+  "c": "Tên phong trào kêu gọi giúp vua khôi phục đất nước cuối thế kỷ XIX.",
+  "n": "Sách kể nhiều nơi nổi lên theo hịch của vua Hàm Nghi.",
+  "g": "phap",
+  "s": "canvuong",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q256",
+  "a": "BAISAY",
+  "vi": "Bãi Sậy",
+  "c": "Địa bàn Tạ Hiện và Nguyễn Thiện Thuật tập hợp lực lượng, theo sách.",
+  "n": "Được nhắc trong chương Loạn ở Trung kỳ.",
+  "g": "phap",
+  "s": "canvuong",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q257",
+  "a": "PHANDINHPHUNG",
+  "vi": "Phan Đình Phùng",
+  "c": "Lãnh tụ văn thân lập đồn điền ở Vũ Quang để chống Pháp.",
+  "n": "Sách khen việc tổ chức và luyện quân của ông.",
+  "g": "phap",
+  "s": "phandinhphung",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q258",
+  "a": "VUQUANG",
+  "vi": "Vũ Quang",
+  "c": "Nơi Phan Đình Phùng mở đồn điền ở phía bắc Hương Khê.",
+  "n": "Sách kể lực lượng của ông chuẩn bị súng đạn tại đây.",
+  "g": "phap",
+  "s": "phandinhphung",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q259",
+  "a": "HUONGKHE",
+  "vi": "Hương Khê",
+  "c": "Huyện ở Hà Tĩnh được sách dùng để xác định vị trí căn cứ Vũ Quang.",
+  "n": "Địa danh gắn với cuộc chống Pháp của Phan Đình Phùng.",
+  "g": "phap",
+  "s": "phandinhphung",
+  "e": "Kháng Pháp · Cần Vương"
+ },
+ {
+  "id": "q260",
+  "a": "DINHNGUYEN",
+  "vi": "Đình nguyên",
+  "c": "Danh hiệu thi cử Phan Đình Phùng đỗ dưới đời Tự Đức.",
+  "n": "Đây là danh hiệu khoa cử, không phải một chức quan.",
+  "g": "phap",
+  "s": "phandinhphung",
+  "e": "Kháng Pháp · Cần Vương"
+ }
+];
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+// Kiểm tra đặt từ w tại (r0,c0) theo hướng d ('A' ngang, 'D' dọc). Trả về số ô giao nhau, hoặc -1 nếu không hợp lệ.
+function fitScore(cells,a,r0,c0,d){
+  const dr=d==='D'?1:0, dc=d==='A'?1:0, L=a.length;
+  if(cells.has((r0-dr)+','+(c0-dc))||cells.has((r0+dr*L)+','+(c0+dc*L))) return -1;
+  let cross=0;
+  for(let i=0;i<L;i++){
+    const r=r0+dr*i, c=c0+dc*i, cell=cells.get(r+','+c);
+    if(cell){
+      if(cell.ch!==a[i]) return -1;
+      if(d==='A'?cell.h:cell.v) return -1;
+      cross++;
+    }else{
+      if(cells.has((r+dc)+','+(c+dr))||cells.has((r-dc)+','+(c-dr))) return -1;
+    }
+  }
+  return cross>0?cross:-1;
+}
+
+function buildOnce(pool,target,maxDim){
+  const order=shuffle(pool.slice());
+  // Randomized priorities, with a stable sort comparator.
+  const priority=new Map(order.map(w=>[w.id,w.a.length+Math.random()*8]));
+  order.sort((x,y)=>priority.get(y.id)-priority.get(x.id));
+  const cells=new Map(), placed=[];
+  let box={r0:0,r1:0,c0:0,c1:0};
+  function put(w,r,c,d){
+    const dr=d==='D'?1:0, dc=d==='A'?1:0;
+    for(let i=0;i<w.a.length;i++){
+      const k=(r+dr*i)+','+(c+dc*i);
+      const cell=cells.get(k)||{ch:w.a[i],h:false,v:false};
+      if(d==='A') cell.h=true; else cell.v=true;
+      cells.set(k,cell);
+    }
+    const r1=r+dr*(w.a.length-1), c1=c+dc*(w.a.length-1);
+    if(placed.length===0) box={r0:r,r1:r1,c0:c,c1:c1};
+    else box={r0:Math.min(box.r0,r),r1:Math.max(box.r1,r1),c0:Math.min(box.c0,c),c1:Math.max(box.c1,c1)};
+    placed.push({...w,r:r,c0:c,dir:d,len:w.a.length});
+  }
+  const first=order[0];
+  put(first,0,0,'A');
+  for(let k=1;k<order.length&&placed.length<target;k++){
+    const w=order[k]; let best=[],bestScore=-Infinity;
+    cells.forEach((cell,key)=>{
+      const [cr,cc]=key.split(',').map(Number);
+      for(let i=0;i<w.a.length;i++){
+        if(w.a[i]!==cell.ch) continue;
+        for(const d of ['A','D']){
+          const r0=cr-(d==='D'?i:0), c0=cc-(d==='A'?i:0);
+          const s=fitScore(cells,w.a,r0,c0,d);
+          if(s<0) continue;
+          const r1=r0+(d==='D'?w.a.length-1:0), c1=c0+(d==='A'?w.a.length-1:0);
+          const h=Math.max(box.r1,r1)-Math.min(box.r0,r0)+1, wd=Math.max(box.c1,c1)-Math.min(box.c0,c0)+1;
+          if(h>maxDim||wd>maxDim) continue;
+          const sc=s*10-Math.max(h,wd);
+          if(sc>bestScore){bestScore=sc;best=[[r0,c0,d]];}
+          else if(sc===bestScore) best.push([r0,c0,d]);
+        }
+      }
+    });
+    if(best.length){const p=best[Math.floor(Math.random()*best.length)];put(w,p[0],p[1],p[2]);}
+  }
+  const rows=box.r1-box.r0+1, cols=box.c1-box.c0+1;
+  let crossings=0; cells.forEach(c=>{if(c.h&&c.v)crossings++;});
+  return {placed:placed,rows:rows,cols:cols,r0:box.r0,c0:box.c0,crossings:crossings};
+}
+
+function generate(pool,target,maxDim,tries){
+  let best=null;
+  for(let t=0;t<(tries||55);t++){
+    const g=buildOnce(pool,target,maxDim);
+    if(!best||g.placed.length>best.placed.length||
+       (g.placed.length===best.placed.length&&(g.crossings>best.crossings||(g.crossings===best.crossings&&g.rows*g.cols<best.rows*best.cols)))) best=g;
+    if(best.placed.length>=target&&t>18) break;
+  }
+  const words=best.placed.map(p=>({...p,r:p.r-best.r0,col:p.c0-best.c0}));
+  // đánh số theo thứ tự hàng rồi cột
+  const starts=[...new Set(words.map(w=>w.r+','+w.col))].map(k=>k.split(',').map(Number)).sort((x,y)=>x[0]-y[0]||x[1]-y[1]);
+  const numOf={}; starts.forEach((s,i)=>{numOf[s[0]+','+s[1]]=i+1;});
+  words.forEach(w=>{w.num=numOf[w.r+','+w.col];});
+  return {rows:best.rows,cols:best.cols,words:words};
+}
+
+function normalize(s){return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[đĐ]/g,'D').toUpperCase().replace(/[^A-Z]/g,'');}
+const LEVELS={easy:{name:'Dễ',target:9,max:17},medium:{name:'Trung bình',target:12,max:20},hard:{name:'Khó',target:14,max:22}};
+function cellKey(r,c){return r+','+c;}
+function cellsOf(w){return Array.from({length:w.a.length},(_,i)=>({r:w.r+(w.dir==='D'?i:0),c:w.col+(w.dir==='A'?i:0)}));}
+function puzzleCells(p){
+  const cells=new Map();
+  p.words.forEach((w,wi)=>cellsOf(w).forEach((v,i)=>{
+    const k=cellKey(v.r,v.c),o=cells.get(k)||{...v,ch:w.a[i],owners:[]};o.owners.push(wi);cells.set(k,o);
+  }));return cells;
+}
+function matchKeyword(p,w){
+  const cells=[...puzzleCells(p).values()], used=new Set(), ownerUse=new Map(), map=[];
+  for(const ch of w.a){
+    const choices=shuffle(cells.filter(o=>o.ch===ch&&!used.has(cellKey(o.r,o.c))));
+    choices.sort((a,b)=>Math.min(...a.owners.map(i=>ownerUse.get(i)||0))-Math.min(...b.owners.map(i=>ownerUse.get(i)||0)));
+    if(!choices.length)return null;
+    const o=choices[0], wi=o.owners.slice().sort((a,b)=>(ownerUse.get(a)||0)-(ownerUse.get(b)||0))[0];
+    map.push({r:o.r,c:o.c,wi});used.add(cellKey(o.r,o.c));ownerUse.set(wi,(ownerUse.get(wi)||0)+1);
+  }return map;
+}
+function makePuzzle(groups,level,previous=null){
+  const cfg=LEVELS[level], seen=new Set();
+  const pool=shuffle(BANK.filter(w=>groups.includes(w.g)&&w.a.length<=cfg.max)).filter(w=>{if(seen.has(w.a))return false;seen.add(w.a);return true;});
+  if(pool.length<3)throw new Error('Bộ câu hỏi chưa đủ để tạo ô chữ.');
+  let best=null;
+  for(let attempt=0;attempt<9;attempt++){
+    // Smaller, varied candidate sets keep generation responsive on mobile.
+    let subset=shuffle(pool.slice());
+    if(previous&&attempt===0){const ids=new Set(previous.words.map(w=>w.id));subset.sort((a,b)=>Number(ids.has(a.id))-Number(ids.has(b.id)));}
+    subset=subset.slice(0,60);
+    const p=generate(subset,Math.min(cfg.target,pool.length-1),cfg.max,attempt<2?36:70);
+    const usedAnswers=new Set(p.words.map(w=>w.a));
+    let candidates=shuffle(pool.filter(w=>!usedAnswers.has(w.a)&&w.a.length>=4&&w.a.length<=Math.min(cfg.target,12)));
+    if(previous)candidates.sort((a,b)=>Number(a.a===previous.keyword.a)-Number(b.a===previous.keyword.a));
+    for(const w of candidates){
+      const mapping=matchKeyword(p,w);
+      if(!mapping)continue;
+      p.keyword={...w,mapping};
+      const represented=new Set(p.words.map(x=>x.g));
+      const wantGroups=groups.length<=cfg.target?groups.length:cfg.target;
+      const score=p.words.length*100+Math.min(represented.size,wantGroups)*3-p.rows*p.cols/1000;
+      if(!best||score>best.score)best={p,score};
+      // A selected small set of dynasties should all be represented.
+      if(p.words.length>=cfg.target&&(groups.length>3||groups.every(g=>represented.has(g))))return p;
+      break;
+    }
+  }
+  if(best)return best.p;
+  throw new Error('Chưa ghép được từ khóa cho bộ này. Hãy bấm tạo lại.');
+}
+
+// DOM APPLICATION
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id), ALL=GROUPS.map(g=>g.id), SENT='\u200b';
+const SAVE_KEY='suluoc-session-v3',BEST_KEY='suluoc-best-v3';
+let draft={groups:ALL.slice(),level:'easy'},config=null,puz=null,st=null,info=new Map(),cellEls=new Map(),clueEls=[],keyEls=[],timer=null,busy=false,bankLimit=36,lastWord=-1,saveOK=true;
+function node(tag,cls,text){const d=document.createElement(tag);if(cls)d.className=cls;if(text!==undefined)d.textContent=text;return d;}
+function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function storeRead(k,fallback){try{return JSON.parse(localStorage.getItem(k))??fallback;}catch{return fallback;}}
+function storeWrite(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch{return false;}}
+function groupLabel(gs){return gs.length===ALL.length?'Tất cả thời kỳ':gs.map(g=>GROUPS.find(x=>x.id===g).name).join(' + ');}
+function scopeKey(gs,l){return gs.slice().sort().join(',')+'|'+l;}
+function showBests(){
+  const best=storeRead(BEST_KEY,{});
+  for(const l of Object.keys(LEVELS)){$('best-'+l).textContent=Number.isFinite(best[scopeKey(draft.groups,l)])?'Kỷ lục '+fmt(best[scopeKey(draft.groups,l)]):'';}
+}
+function buildEras(){
+  const all=node('button','era-btn','Trộn tất cả');all.type='button';all.dataset.era='all';all.addEventListener('click',()=>{draft.groups=ALL.slice();renderSetup();});$('eraChoices').append(all);
+  GROUPS.forEach(g=>{
+    const b=node('button','era-btn');b.type='button';b.dataset.era=g.id;b.title=g.desc;
+    b.append(node('span','',g.name),node('b','',BANK.filter(w=>w.g===g.id).length));
+    b.addEventListener('click',()=>{
+      if(draft.groups.length===ALL.length)draft.groups=[g.id];
+      else if(draft.groups.includes(g.id)){draft.groups=draft.groups.filter(x=>x!==g.id);if(!draft.groups.length)draft.groups=ALL.slice();}
+      else draft.groups.push(g.id);
+      renderSetup();
+    });$('eraChoices').append(b);
+  });
+}
+function renderSetup(){
+  const all=draft.groups.length===ALL.length;
+  document.querySelectorAll('[data-era]').forEach(b=>{const on=b.dataset.era==='all'?all:!all&&draft.groups.includes(b.dataset.era);b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));});
+  document.querySelectorAll('[data-level]').forEach(b=>{const on=b.dataset.level===draft.level;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));});
+  const count=BANK.filter(w=>draft.groups.includes(w.g)).length;
+  $('poolCount').textContent=count+' câu hỏi · '+(all?'Tất cả':draft.groups.length)+' nhóm';showBests();
+  bankLimit=36;if($('bankDetails').open)renderBank();
+}
+function sourceLink(w){const s=SOURCES[w.s],a=node('a','',s.label+' ↗');a.href=s.url;a.target='_blank';a.rel='noopener noreferrer';return a;}
+function renderBank(){
+  const q=normalize($('bankSearch').value),rows=BANK.filter(w=>draft.groups.includes(w.g)&&(!q||normalize(w.vi+' '+w.c+' '+w.n).includes(q)));
+  $('bankList').replaceChildren();
+  for(const w of rows.slice(0,bankLimit)){const a=node('article');a.append(node('h3','',w.vi),node('div','eyebrow',w.e),node('p','',w.c),node('p','bank-meta',w.n),sourceLink(w));$('bankList').append(a);}
+  $('bankCount').textContent=rows.length+' câu phù hợp · đang hiển thị '+Math.min(rows.length,bankLimit);$('bMore').hidden=rows.length<=bankLimit;
+}
+function setupPuzzle(){
+  info=puzzleCells(puz);info.forEach(o=>{o.words={};o.owners.forEach(i=>o.words[puz.words[i].dir]=i);});
+  $('gridwrap').style.setProperty('--cols',puz.cols);$('grid').replaceChildren();cellEls=new Map();
+  const starts=new Map(puz.words.map(w=>[cellKey(w.r,w.col),w.num]));
+  const keys=new Map(puz.keyword.mapping.map((p,i)=>[cellKey(p.r,p.c),i+1]));
+  for(let r=0;r<puz.rows;r++)for(let c=0;c<puz.cols;c++){
+    const k=cellKey(r,c),o=info.get(k),d=node(o?'button':'div','cell'+(o?'':' void'));
+    if(o){d.type='button';d.tabIndex=-1;d.dataset.r=r;d.dataset.c=c;
+      if(starts.has(k))d.append(node('span','n',starts.get(k)));
+      const ch=node('span','ch');d.append(ch);if(keys.has(k))d.append(node('span','kn',keys.get(k)));
+      cellEls.set(k,{el:d,ch,key:keys.get(k)});
+    }else d.setAttribute('aria-hidden','true');$('grid').append(d);
+  }
+  $('clueA').replaceChildren();$('clueD').replaceChildren();clueEls=[];
+  puz.words.map((w,i)=>({w,i})).sort((a,b)=>a.w.num-b.w.num).forEach(({w,i})=>{
+    const li=node('li'),b=node('button','clue');b.type='button';b.dataset.wi=i;
+    const text=node('span','ct',w.c+' '),hint=node('em','',wordSize(w));text.append(hint);b.append(node('span','cn',w.num),text);
+    b.addEventListener('click',()=>{selectWord(i);focusSink();});li.append(b);$(w.dir==='A'?'clueA':'clueD').append(li);clueEls[i]=b;
+  });
+  $('keyRow').replaceChildren();keyEls=[];
+  let boundary=0;const boundaries=[];puz.keyword.vi.split(/\s+/).forEach(s=>{boundaries.push(boundary);boundary+=normalize(s).length;});
+  puz.keyword.mapping.forEach((p,i)=>{
+    const b=node('button','key-tile'+(config.level!=='hard'&&i>0&&boundaries.includes(i)?' word-start':''));b.type='button';
+    const ch=node('span','key-letter','?');b.append(node('small','',i+1),ch);b.dataset.keyIndex=i;
+    b.addEventListener('click',()=>{select(p.r,p.c,puz.words[p.wi].dir);focusSink();$('scrollBoard').scrollIntoView({block:'nearest',behavior:'auto'});});
+    $('keyRow').append(b);keyEls.push({el:b,ch});
+  });
+  $('keyClue').textContent=puz.keyword.c+' ('+puz.keyword.a.length+' chữ cái)';
+  $('currentScope').textContent=groupLabel(config.groups)+' · '+LEVELS[config.level].name;
+  $('wordInput').value='';$('keywordInput').value='';$('msg').textContent='';$('keyMsg').textContent='';$('keyNote').hidden=true;lastWord=-1;
+  updateSolved();renderLearned();render();
+  clearInterval(timer);if(!st.done)timer=setInterval(tick,1000);tick();
+}
+function wordSize(w){return '('+(config.level==='hard'?'':w.vi.trim().split(/\s+/).length+' tiếng, ')+w.len+' ô)';}
+function activeIndex(){if(!st?.sel)return 0;return info.get(cellKey(st.sel.r,st.sel.c))?.words[st.sel.dir]??0;}
+function activeWord(){return puz.words[activeIndex()];}
+function select(r,c,dir){
+  const o=info.get(cellKey(r,c));if(!o)return;dir=dir||st.sel?.dir||'A';if(o.words[dir]===undefined)dir=dir==='A'?'D':'A';
+  st.sel={r,c,dir};render();keepCellVisible();
+}
+function keepCellVisible(){
+  const wrap=$('scrollBoard'),cell=cellEls.get(cellKey(st.sel.r,st.sel.c))?.el;if(!cell)return;
+  const a=cell.getBoundingClientRect(),b=wrap.getBoundingClientRect();
+  if(a.right>b.right-7)wrap.scrollLeft+=a.right-b.right+7;
+  else if(a.left<b.left+7)wrap.scrollLeft+=a.left-b.left-7;
+}
+function selectWord(i){const w=puz.words[i];const p=cellsOf(w).find((v,k)=>st.letters[cellKey(v.r,v.c)]!==w.a[k])||{r:w.r,c:w.col};select(p.r,p.c,w.dir);}
+function focusSink(){if(st.done)return;$('sink').value=SENT;try{$('sink').focus({preventScroll:true});}catch{$('sink').focus();}}
+function toggleDir(){const o=info.get(cellKey(st.sel.r,st.sel.c)),dir=st.sel.dir==='A'?'D':'A';if(o.words[dir]!==undefined)select(st.sel.r,st.sel.c,dir);}
+function unlocked(i){const p=puz.keyword.mapping[i];return info.get(cellKey(p.r,p.c)).owners.some(w=>st.solved.includes(w));}
+function render(){
+  const wi=activeIndex(),w=puz.words[wi],inword=new Set(cellsOf(w).map(v=>cellKey(v.r,v.c))),solvedCells=new Set();
+  st.solved.forEach(i=>cellsOf(puz.words[i]).forEach(p=>solvedCells.add(cellKey(p.r,p.c))));
+  for(const [k,o] of info){
+    const v=cellEls.get(k),active=st.sel.r===o.r&&st.sel.c===o.c;
+    v.ch.textContent=st.letters[k]||'';
+    v.el.className='cell'+(inword.has(k)?' inword':'')+(solvedCells.has(k)?' done':'')+(st.revealed.includes(k)?' rev':'')+(st.bad.includes(k)?' bad':'')+(active?' active':'')+(v.key?' key-cell':'');
+    v.el.tabIndex=active?0:-1;v.el.setAttribute('aria-label','Hàng '+(o.r+1)+', cột '+(o.c+1)+': '+(st.letters[k]||'trống')+(v.key?', chữ từ khóa số '+v.key:''));v.el.setAttribute('aria-current',active?'true':'false');
+  }
+  clueEls.forEach((b,i)=>{b.className='clue'+(i===wi?' cur':'')+(st.solved.includes(i)?' done':'');b.setAttribute('aria-current',i===wi?'true':'false');});
+  if(lastWord!==wi){$('wordInput').value='';lastWord=wi;}
+  $('now').replaceChildren(node('span','tag',w.num+' '+(w.dir==='A'?'ngang':'dọc')+' · '+w.e+' · '+wordSize(w)),node('span','ctext',w.c));
+  $('prog').textContent=st.solved.length+'/'+puz.words.length+' từ';$('hints').textContent=st.hints;$('progressBar').style.width=(st.solved.length/puz.words.length*100)+'%';
+  let count=0;keyEls.forEach((v,i)=>{const open=st.keywordSolved||st.gaveUp||unlocked(i);if(open)count++;v.ch.textContent=open?puz.keyword.a[i]:'?';v.el.classList.toggle('open',open);v.el.classList.toggle('correct',st.keywordSolved&&!st.gaveUp);const p=puz.keyword.mapping[i],s=puz.words[p.wi];v.el.setAttribute('aria-label','Chữ từ khóa '+(i+1)+': '+(open?puz.keyword.a[i]:'chưa mở')+', lấy từ '+s.num+' '+(s.dir==='A'?'ngang':'dọc'));});
+  $('keyProgress').textContent=count+'/'+puz.keyword.a.length+' chữ mở';$('keywordBox').classList.toggle('solved',st.keywordSolved&&!st.gaveUp);
+  const keywordFinished=st.keywordSolved||st.gaveUp;$('keywordInput').disabled=keywordFinished;$('bKeyword').disabled=keywordFinished;
+  if(keywordFinished){$('keywordInput').value=puz.keyword.vi;$('keyNote').hidden=false;$('keyNote').replaceChildren(node('strong','',puz.keyword.vi+'. '),document.createTextNode(puz.keyword.n+' '),sourceLink(puz.keyword));}
+  ['bHint','bWord','bFill','wordInput','bAll'].forEach(id=>$(id).disabled=st.done);
+  $('result').hidden=!st.done;
+  if(st.done)$('result').textContent=st.resultText||'Đã kết thúc ván.';
+}
+function renderLearned(){
+  $('learnedList').replaceChildren();
+  for(const i of st.solved){const w=puz.words[i],d=node('article','card');d.append(node('div','era',w.e),node('h3','',w.vi),node('p','',w.n),sourceLink(w));$('learnedList').append(d);}
+  $('learnedEmpty').hidden=st.solved.length>0;
+}
+function updateSolved(){
+  const before=(st.solved||[]).join(',');st.solved=[];
+  puz.words.forEach((w,i)=>{if(cellsOf(w).every((p,k)=>st.letters[cellKey(p.r,p.c)]===w.a[k]))st.solved.push(i);});
+  if(st.solved.join(',')!==before)renderLearned();
+}
+function afterEdit(){
+  updateSolved();
+  if(!st.done&&st.solved.length===puz.words.length){if(st.keywordSolved)finish();else $('keyMsg').textContent='Đã đủ các hàng chữ. Nhập từ khóa để hoàn thành ván!';}
+  render();keepCellVisible();save();
+}
+function elapsed(){return st.done?st.elapsed:Math.max(0,Math.floor((Date.now()-st.t0)/1000));}
+function tick(){if(!st)return;$('time').textContent=fmt(elapsed());if(!st.done&&elapsed()%10===0)save();}
+function save(){
+  if(!puz||!st)return;
+  saveOK=storeWrite(SAVE_KEY,{version:BANK_VERSION,config,puz,st:{...st,elapsed:elapsed()}});
+  $('saveStatus').textContent=saveOK?'Tự động lưu':'Chơi không lưu';
+}
+function finish(){
+  st.elapsed=elapsed();st.done=true;clearInterval(timer);let text='Hoàn thành '+puz.words.length+' hàng chữ và từ khóa “'+puz.keyword.vi+'” sau '+fmt(st.elapsed)+'. ';
+  if(st.hints===0&&!st.gaveUp){
+    const b=storeRead(BEST_KEY,{}),k=scopeKey(config.groups,config.level);
+    text+='Không dùng gợi ý.';
+    if(!Number.isFinite(b[k])||st.elapsed<b[k]){b[k]=st.elapsed;if(storeWrite(BEST_KEY,b))text+=' Kỷ lục mới cho bộ này!';}
+    showBests();
+  }else text+='Đã mở '+st.hints+' ô bằng gợi ý. Kỷ lục chỉ tính khi tự giải toàn bộ.';
+  st.resultText=text;$('msg').textContent='';tick();
+}
+function setLetter(k,ch){st.letters[k]=ch;st.bad=st.bad.filter(x=>x!==k);st.revealed=st.revealed.filter(x=>x!==k);}
+function inputLetters(str){
+  if(st.done)return;const letters=normalize(str);if(!letters)return;
+  const w=activeWord(),cs=cellsOf(w);let at=cs.findIndex(p=>p.r===st.sel.r&&p.c===st.sel.c);
+  for(const ch of letters){if(at>=cs.length)break;setLetter(cellKey(cs[at].r,cs[at].c),ch);at++;}
+  const p=cs[Math.min(at,cs.length-1)];st.sel={...p,dir:w.dir};$('msg').textContent='';afterEdit();
+}
+function erase(back){
+  if(st.done)return;let k=cellKey(st.sel.r,st.sel.c);
+  if(back&&!st.letters[k]){const cs=cellsOf(activeWord()),at=cs.findIndex(p=>p.r===st.sel.r&&p.c===st.sel.c);if(at>0){st.sel={...cs[at-1],dir:st.sel.dir};k=cellKey(st.sel.r,st.sel.c);}}
+  delete st.letters[k];st.bad=st.bad.filter(x=>x!==k);st.revealed=st.revealed.filter(x=>x!==k);afterEdit();
+}
+function move(dr,dc,dir){let r=st.sel.r+dr,c=st.sel.c+dc;while(r>=0&&r<puz.rows&&c>=0&&c<puz.cols){if(info.has(cellKey(r,c))){select(r,c,dir);return;}r+=dr;c+=dc;}}
+function nextClue(step){const order=puz.words.map((w,i)=>i).sort((a,b)=>puz.words[a].dir.localeCompare(puz.words[b].dir)||puz.words[a].num-puz.words[b].num);selectWord(order[(order.indexOf(activeIndex())+step+order.length)%order.length]);}
+function check(){
+  st.bad=[];let wrong=0,empty=0;
+  for(const [k,o]of info){if(!st.letters[k])empty++;else if(st.letters[k]!==o.ch){wrong++;st.bad.push(k);}}
+  $('msg').textContent=wrong?'Có '+wrong+' ô sai, đã tô đỏ.':empty?'Các chữ đã điền đều đúng. Còn '+empty+' ô trống.':'Tất cả hàng chữ đều đúng.';render();save();
+}
+function revealWord(one){
+  if(st.done)return;const w=activeWord(),ps=one?[st.sel]:cellsOf(w);let n=0;
+  for(const p of ps){const k=cellKey(p.r,p.c),o=info.get(k);if(st.letters[k]!==o.ch){st.letters[k]=o.ch;st.revealed.push(k);st.bad=st.bad.filter(x=>x!==k);n++;}}
+  st.hints+=n;$('msg').textContent=n?(one?'Đã mở một ô.':'Đáp án: '+w.vi+' · đã mở '+n+' ô.'):'Các ô này đã đúng.';afterEdit();
+}
+function giveUp(){
+  if(st.done)return;st.elapsed=elapsed();st.done=true;st.gaveUp=true;clearInterval(timer);
+  for(const [k,o]of info){if(st.letters[k]!==o.ch){st.letters[k]=o.ch;if(!st.revealed.includes(k))st.revealed.push(k);}}
+  st.bad=[];st.resultText='Đang xem toàn bộ lời giải, gồm từ khóa “'+puz.keyword.vi+'”. Ván này không tính kỷ lục.';$('msg').textContent='Bấm “Ô chữ mới” để tiếp tục với cùng bộ triều đại.';$('keyMsg').textContent='Đáp án từ khóa: '+puz.keyword.vi;afterEdit();tick();
+}
+async function startPuzzle(useDraft){
+  if(busy)return;busy=true;$('bApply').disabled=true;$('bNew').disabled=true;$('msg').textContent='Đang ghép ô chữ và từ khóa…';
+  await new Promise(resolve=>setTimeout(resolve,25));
+  try{
+    const newConfig=useDraft?{groups:draft.groups.slice(),level:draft.level}:config||{groups:ALL.slice(),level:'easy'};
+    const next=makePuzzle(newConfig.groups,newConfig.level,puz);config={groups:newConfig.groups.slice(),level:newConfig.level};puz=next;
+    draft={groups:config.groups.slice(),level:config.level};
+    const first=puz.words.find(w=>w.dir==='A')||puz.words[0];
+    st={letters:{},revealed:[],bad:[],solved:[],sel:{r:first.r,c:first.col,dir:first.dir},hints:0,t0:Date.now(),elapsed:0,done:false,gaveUp:false,keywordSolved:false,resultText:''};
+    setupPuzzle();renderSetup();save();
+    if(puz.words.length<LEVELS[config.level].target)$('msg').textContent='Bộ này ghép được '+puz.words.length+' từ trong giới hạn bàn. Từ khóa có '+puz.keyword.a.length+' chữ.';
+  }catch(e){$('msg').textContent=e.message||'Chưa tạo được bàn. Hãy thử lại.';}
+  finally{busy=false;$('bApply').disabled=false;$('bNew').disabled=false;}
+}
+function restore(){
+  const saved=storeRead(SAVE_KEY,null);
+  try{
+    if(!saved||saved.version!==BANK_VERSION||!LEVELS[saved.config.level]||!saved.config.groups.length||saved.config.groups.some(g=>!ALL.includes(g)))return false;
+    const p=saved.puz,s=saved.st;
+    if(!Array.isArray(p.words)||!p.words.length||p.rows<1||p.rows>26||p.cols<1||p.cols>26)return false;
+    if(!p.words.every(w=>BANK.some(b=>b.id===w.id&&b.a===w.a)&&Number.isInteger(w.r)&&Number.isInteger(w.col)&&['A','D'].includes(w.dir)))return false;
+    const cells=puzzleCells(p);
+    if(!p.keyword||p.keyword.mapping.length!==p.keyword.a.length||!BANK.some(b=>b.id===p.keyword.id&&b.a===p.keyword.a))return false;
+    if(!p.keyword.mapping.every((v,i)=>cells.get(cellKey(v.r,v.c))?.ch===p.keyword.a[i]&&cells.get(cellKey(v.r,v.c)).owners.includes(v.wi)))return false;
+    if(!s.letters||!Array.isArray(s.revealed)||!Array.isArray(s.bad)||!Number.isFinite(s.elapsed)||s.elapsed<0||!cells.has(cellKey(s.sel.r,s.sel.c)))return false;
+    for(const [k,v]of Object.entries(s.letters))if(!cells.has(k)||!/^[A-Z]$/.test(v))return false;
+    config=saved.config;puz=p;st=s;st.t0=Date.now()-s.elapsed*1000;draft={groups:config.groups.slice(),level:config.level};setupPuzzle();renderSetup();$('msg').textContent='Đã tiếp tục ván được lưu trên trình duyệt này.';save();return true;
+  }catch{return false;}
+}
+function gridKeydown(e){
+  if(!st||e.ctrlKey||e.metaKey||e.altKey||e.isComposing)return;
+  const actions={ArrowLeft:()=>move(0,-1,'A'),ArrowRight:()=>move(0,1,'A'),ArrowUp:()=>move(-1,0,'D'),ArrowDown:()=>move(1,0,'D'),Backspace:()=>erase(true),Delete:()=>erase(false),' ':toggleDir,Tab:()=>nextClue(e.shiftKey?-1:1),Enter:()=>nextClue(e.shiftKey?-1:1),Escape:()=>{$('wordInput').focus();}};
+  if(actions[e.key]){e.preventDefault();actions[e.key]();}
+  else if(e.currentTarget!==$('sink')&&e.key.length===1&&normalize(e.key)){e.preventDefault();inputLetters(e.key);focusSink();}
+}
+$('grid').addEventListener('click',e=>{const b=e.target.closest('button.cell');if(!b||!st)return;const r=+b.dataset.r,c=+b.dataset.c;if(st.sel.r===r&&st.sel.c===c)toggleDir();else select(r,c);focusSink();});
+$('grid').addEventListener('keydown',gridKeydown);
+$('sink').addEventListener('keydown',gridKeydown);
+let composing=false;
+function drain(){if(composing||!st)return;const v=$('sink').value;$('sink').value=SENT;if(v===''){erase(true);return;}inputLetters(v.split(SENT).join(''));}
+$('sink').addEventListener('compositionstart',()=>composing=true);
+$('sink').addEventListener('compositionend',()=>{composing=false;drain();});
+$('sink').addEventListener('input',e=>{if(!e.isComposing)drain();});
+$('wordForm').addEventListener('submit',e=>{
+  e.preventDefault();if(st.done)return;const w=activeWord(),raw=normalize($('wordInput').value);let a=raw;
+  if(w.aliases?.includes(a))a=w.a;
+  if(!a){$('msg').textContent='Hãy nhập đáp án trước.';return;}
+  if(a.length!==w.len){$('msg').textContent='Hàng này có '+w.len+' chữ cái không dấu; bạn vừa nhập '+a.length+'.';return;}
+  cellsOf(w).forEach((p,i)=>setLetter(cellKey(p.r,p.c),a[i]));$('wordInput').value='';$('msg').textContent=a===w.a?'Đúng rồi: '+w.vi+'.':'Đã điền. Bạn có thể bấm “Kiểm tra”.';afterEdit();
+});
+$('keywordForm').addEventListener('submit',e=>{
+  e.preventDefault();if(st.done||st.keywordSolved)return;const v=normalize($('keywordInput').value),w=puz.keyword;
+  if(!v){$('keyMsg').textContent='Hãy nhập từ khóa bạn đoán.';return;}
+  if(v!==w.a&&!w.aliases?.includes(v)){$('keyMsg').textContent='Chưa đúng. Hãy xem gợi ý và các chữ đã mở.';return;}
+  st.keywordSolved=true;$('keyMsg').textContent='Chính xác: '+w.vi+'!'+(st.solved.length<puz.words.length?' Tiếp tục hoàn thành các hàng chữ.':'');afterEdit();
+});
+$('bCheck').addEventListener('click',check);$('bHint').addEventListener('click',()=>{revealWord(true);focusSink();});$('bWord').addEventListener('click',()=>{revealWord(false);focusSink();});$('bAll').addEventListener('click',giveUp);
+$('bApply').addEventListener('click',()=>startPuzzle(true));$('bNew').addEventListener('click',()=>startPuzzle(false));
+document.querySelectorAll('[data-level]').forEach(b=>b.addEventListener('click',()=>{draft.level=b.dataset.level;renderSetup();}));
+$('bankDetails').addEventListener('toggle',()=>{if($('bankDetails').open)renderBank();});$('bankSearch').addEventListener('input',()=>{bankLimit=36;renderBank();});$('bMore').addEventListener('click',()=>{bankLimit+=36;renderBank();});
+function setTheme(theme){document.documentElement.dataset.theme=theme;$('bTheme').textContent=theme==='dark'?'Giao diện sáng':'Giao diện tối';}
+const initialTheme=storeRead('suluoc-theme',null);setTheme(initialTheme==='dark'||(!initialTheme&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');
+$('bTheme').addEventListener('click',()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';setTheme(t);storeWrite('suluoc-theme',t);});
+window.addEventListener('beforeunload',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});
+const resizeObserver=new ResizeObserver(()=>{$('scrollHint').hidden=$('scrollBoard').scrollWidth<=$('scrollBoard').clientWidth+1;});resizeObserver.observe($('scrollBoard'));resizeObserver.observe($('gridwrap'));
+$('bankTotal').textContent=BANK.length+' câu hỏi';$('bankSummary').textContent='Tra cứu '+BANK.length+' câu hỏi & nguồn sách (có đáp án)';
+buildEras();renderSetup();if(!restore())startPuzzle(true);
+})();
+
+</script>
+</body></html>
